@@ -46,7 +46,11 @@ export const useLodgingStore = defineStore('lodgingStore', {
         this.lodging = null;
         this.message = null;
 
-        const response = await fetch(`/api/lodgings/${lodging_id}`);
+        const response = await fetch(`/api/lodgings/${lodging_id}`, {
+          headers: {
+            authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
 
         if (!response.ok) {
           throw new Error(`Erreur ${response.status}: ${response.statusText}`);

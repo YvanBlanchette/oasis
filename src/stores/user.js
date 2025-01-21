@@ -51,7 +51,7 @@ export const useUserStore = defineStore('userStore', {
         this.router.push({ name: "home" });
       }
     },
-    //-------------------- Logout user --------------------/
+    //-------------------- Logout user --------------------//
     async logout() {
       const response = await fetch("/api/logout", {
         method: "post",
@@ -68,6 +68,24 @@ export const useUserStore = defineStore('userStore', {
         this.errors = {};
         localStorage.removeItem("token");
         this.router.push({ name: "auth" });
+      } else {
+        this.errors = data.errors;
+      }
+    },
+    //-------------------- Delete user --------------------/
+    async deleteUser(user_id) {
+      const response = await fetch(`/api/users/${user_id}`, {
+        method: "delete",
+        headers: {
+          authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        this.message = data.message;
+        console.log(this.message);
       } else {
         this.errors = data.errors;
       }

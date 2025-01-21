@@ -7,20 +7,16 @@ const sidebarOpen = ref(true);
 const authStore = useAuthStore();
   
 const links = [
+
   {
-    icon:  'fa-table-list',
-    name: 'Sommaire',
-    href: '/dashboard/summary',
+    icon: 'fa-calendar-days',
+    name: 'Reservations',
+    href: '/dashboard/reservations',
   },
   {
     icon: 'fa-people-roof',
     name: 'Clientèle',
     href: '/dashboard/customers',
-  },
-  {
-    icon: 'fa-calendar-days',
-    name: 'Reservations',
-    href: '/dashboard/reservations',
   }
 ];
 
@@ -34,11 +30,6 @@ const adminLinks = [
     icon:  'fa-person-skiing-nordic',
     name: 'Activités',
     href: '/dashboard/activities',
-  },
-  {
-    icon:  'fa-money-bill-1-wave',
-    name: 'Promotions',
-    href: '/dashboard/promotions',
   },
   {
     icon:  'fa-user-group',

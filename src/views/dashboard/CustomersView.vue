@@ -34,13 +34,18 @@ div.scrollable>table>thead {
 <script setup>
 import Loader from '@/components/Loader.vue';
 import Modal from '@/components/Modal.vue';
+import { useAuthStore } from '@/stores/auth';
 import { useUserStore } from '@/stores/user';
 import { onMounted, ref } from 'vue';
 
 const userStore = useUserStore();
+const authStore = useAuthStore();
 
 // Variable to hold the guests
 const guests = ref([]);
+
+// Variable to hold the selected guest
+const selectedGuest = ref({});
 
 // Loading State
 const isLoading = ref(true);
@@ -64,6 +69,18 @@ onMounted(async () => {
     isLoading.value = false;
   }
 });
+
+// Function to handle guest selection
+function selectGuest(guest) {
+  selectedGuest.value = guest;
+}
+
+const deleteUser = async (user_id) => {
+  await userStore.deleteUser(user_id);
+  await userStore.getUsers();
+  guests.value = userStore.guests;
+  showDeleteModal.value = false;
+}
 </script>
 
 <template>
@@ -99,10 +116,10 @@ onMounted(async () => {
             <td class="p-4">{{ guest.phone }}</td>
             <td class="p-4">{{ guest.updated_at.slice(0, 10) }}</td>
             <td class="p-4 flex items-center justify-center gap-4">
-              <button @click="showEditModal = true">
+              <button @click="selectGuest(guest); showEditModal = true">
                 <i class="fa-solid fa-pen-to-square hover:text-[#F4C887] transition-all duration-200"></i>
               </button>
-              <button @click="showDeleteModal = true">
+              <button v-if="authStore.user.role === 'admin'" @click="selectGuest(guest); showDeleteModal = true">
                 <i class="fa-regular fa-trash-can hover:text-red-500 transition-all duration-200"></i>
               </button>
             </td>
@@ -118,7 +135,12 @@ onMounted(async () => {
       <i class="fa-solid fa-xmark text-xl"></i>
     </button>
 
-    <h1 class="text-4xl text-center font-semibold mb-6">Modifier une activité</h1>
+    <div>
+      <h1 class="text-5xl text-center font-semibold mb-6">Modifier un client</h1>
+      <form @submit.prevent="updateUser">
+        <Input type="text" label="Nom" v-model="selectedGuest.name" className="text-neutral-900"/>
+      </form>
+    </div>
   </Modal>
 
   <Modal v-if="showDeleteModal">
@@ -127,6 +149,20 @@ onMounted(async () => {
       <i class="fa-solid fa-xmark text-xl"></i>
     </button>
 
-    <h1 class="text-4xl text-center font-semibold mb-6">Supprimer une activité</h1>
+    <div>
+      <h1 class="text-5xl text-center font-semibold mb-6">Supprimer un client</h1>
+      <p class="text-xl font-medium">Êtes-vous certain de vouloir supprimer le client "{{ selectedGuest.name }}"? </p>
+      <p class="text-base mb-6">Une fois supprim&eacute;, vous ne pourrez plus revenir en arri&egrave;re.</p>
+      <div class="flex justify-end items-center gap-4">
+        <button @click="showDeleteModal = false"
+          class="hover:bg-neutral-200 px-4 py-1 rounded-md hover:shadow font-medium transition-all duration-200">
+          Annuler
+        </button>
+        <button @click="deleteUser(selectedGuest.id)"
+          class="bg-red-500 hover:bg-red-600 px-4 py-1 rounded-md shadow text-neutral-100 font-medium transition-all duration-200">
+          Confirmer
+        </button>
+      </div>
+    </div>
   </Modal>
 </template>

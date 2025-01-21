@@ -17,7 +17,11 @@ export const useActivityStore = defineStore('activityStore', {
         this.summerActivities = null;
         this.winterActivities = null;
 
-        const response = await fetch("/api/activities");
+        const response = await fetch("/api/activities", {
+          headers: {
+            authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
 
         if (!response.ok) {
           throw new Error(`Erreur ${response.status}: ${response.statusText}`);
@@ -39,7 +43,11 @@ export const useActivityStore = defineStore('activityStore', {
         this.activity = null;
         this.message = null;
 
-        const response = await fetch(`/api/activities/${activity_id}`);
+        const response = await fetch(`/api/activities/${activity_id}`, {
+          headers: {
+            authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
 
         if (!response.ok) {
           throw new Error(`Erreur ${response.status}: ${response.statusText}`);

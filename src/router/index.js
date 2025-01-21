@@ -12,7 +12,6 @@ import ActivitiesView from '@/views/dashboard/ActivitiesView.vue'
 import CustomersView from '@/views/dashboard/CustomersView.vue'
 import ReservationsView from '@/views/dashboard/ReservationsView.vue'
 import EmployesView from '@/views/dashboard/EmployesView.vue'
-import PromotionsView from '@/views/dashboard/PromotionsView.vue'
 import SummaryView from '@/views/dashboard/SummaryView.vue'
 
 const router = createRouter({
@@ -46,15 +45,11 @@ const router = createRouter({
     },
     {
       path: '/dashboard',
-      redirect: '/dashboard/summary',
+      redirect: '/dashboard/reservations',
+      name: 'dashboard',
       component: DashboardView,
       meta: { auth: true, staff: true },
       children: [
-        {
-          path: '/dashboard/summary',
-          name: 'dashboard',
-          component: SummaryView,
-        },
         {
           path: 'customers',
           name: 'customers',
@@ -80,11 +75,6 @@ const router = createRouter({
           name: 'employes',
           component: EmployesView,
           meta: { admin: true }
-        },
-        {
-          path: 'promotions',
-          name: 'promotions',
-          component: PromotionsView,
         },
       ],
     },
