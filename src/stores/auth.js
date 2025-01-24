@@ -1,71 +1,71 @@
 import { defineStore } from 'pinia'
+import { auth } from "@/firebase";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile } from "firebase/auth";
+import { useRouter } from 'vue-router';
+
 
 export const useAuthStore = defineStore('authStore', {
   state: () => {
     return {
       user: null,
+      isLoading: false,
       isAuthenticated: false,
       errors: {},
+      router: null,
     }
   },
   actions: {
-  //-------------------- Get authenticated user --------------------/
-  async getUser() {
-    if (localStorage.getItem("token")) {
-      const response = await fetch("/api/profile", {
-        headers: {
-          authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-      const data = await response.json();
-      console.log(data);
-      if (response.ok) {
-        this.user = data.user;
-        this.isAuthenticated = true;
-        return data.user;
-      }
-    }
-  },
-    //-------------------- Login / Register user --------------------/
-    async authenticate(apiRoute, formData) {
-      const response = await fetch(`/api/${apiRoute}`, {
-        method: 'POST',
-        body: JSON.stringify(formData),
-      });
-
-      const data = await response.json();
-
-      if (data.errors) {
-        this.errors = data.errors;
-        console.log(data.errors);
-      } else {
-        this.errors = {};
-        localStorage.setItem('token', data.token);
-        this.user = data.user;
+    init() {
+      this.router = useRouter();
+    },
+    //-------------------- Register user with email and password --------------------/
+    async registerEmailPassword(credentials) {
+      try {
+        this.isLoading = true;
+        const result = await createUserWithEmailAndPassword(auth, credentials.email, credentials.password);
+        this.user = result.user;
+        await updateProfile(this.user, {
+          displayName: credentials.name,
+          });
         this.isAuthenticated = true;
         this.router.push({ name: "home" });
+      } catch (error) {
+        console.error("Échec de la création de l'utilisateur: ", error);
+      } finally {
+        this.isLoading = false;
+      }
+    },
+    //-------------------- Login user with email and password --------------------/
+    async loginEmailPassword(credentials) {
+      try {
+        this.isLoading = true;
+        const result = await signInWithEmailAndPassword(auth, credentials.email, credentials.password);
+        this.user = result.user;
+        console.log(this.user);
+        this.isAuthenticated = true;
+        this.router.push({ name: "home" });
+      } catch (error) {
+        console.error("Échec de l'authentification: ", error);
+        this.errors = error;
+        console.log(this.errors);
+      } finally {
+        this.isLoading = false;
       }
     },
     //-------------------- Logout user --------------------/
     async logout() {
-      const response = await fetch("/api/logout", {
-        method: "post",
-        headers: {
-          authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
+      try {
+        this.isLoading = true;
+        const result = await signOut(auth);
+        console.log(result);
         this.user = null;
         this.isAuthenticated = false;
-        this.errors = {};
-        localStorage.removeItem("token");
         this.router.push({ name: "auth" });
-      } else {
-        this.errors = data.errors;
+      } catch (error) {
+        console.error("Erreur lors de la deconnexion: ", error);
+      } finally {
+        this.isLoading = false;
       }
     },
-  }
+  },
 });

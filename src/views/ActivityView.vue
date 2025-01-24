@@ -68,7 +68,7 @@ const bookActivity = async () => {
 
     <main class="w-[90%] mx-auto h-[calc(100vh-165px)] text-neutral-100 mt-[165px] z-30">
       <!-- Title -->
-      <h1 class="text-5xl text-center font-semibold mb-8 text-[#F4C887]">
+      <h1 class="text-5xl text-center font-semibold mb-8 text-primary">
         {{ activity?.name }}
       </h1>
 
@@ -77,7 +77,7 @@ const bookActivity = async () => {
         <div>
           <p class="text-xl">{{ activity?.description }}</p>
 
-          <h2 class="text-3xl font-semibold mt-8 underline decoration-1 underline-offset-2 text-[#F4C887]">
+          <h2 class="text-3xl font-semibold mt-8 underline decoration-1 underline-offset-2 text-primary">
             Informations à propos de l'activité
           </h2>
           <p class="tracking-wide mt-2 text-lg font-medium flex gap-3">
@@ -119,7 +119,7 @@ const bookActivity = async () => {
         <!-- Right side -->
         <div>
           <div class="w-[90%] mx-auto bg-neutral-100/10 backdrop-blur-md p-8 rounded-lg h-full">
-            <h2 class="text-3xl font-semibold uppercase tracking-wider text-center text-[#F4C887]">
+            <h2 class="text-3xl font-semibold uppercase tracking-wider text-center text-primary">
               Réservations
             </h2>
 
@@ -170,7 +170,7 @@ const bookActivity = async () => {
 
                   <div>
                     <button type="submit"
-                      class="text-center uppercase rounded-md  font-semibold bg-neutral-100 text-neutral-900 py-2 px-4 hover:bg-[#F4C887] transition-all duration-300">
+                      class="text-center uppercase rounded-md  font-semibold bg-neutral-100 text-neutral-900 py-2 px-4 hover:bg-primary transition-all duration-300">
                       Réserver
                     </button>
                   </div>
@@ -193,7 +193,7 @@ const bookActivity = async () => {
                 Vous devez vous connecter pour faire une réservation.
               </h3>
               <RouterLink to="/auth"
-                class="text-center mt-4 text-xl font-semibold bg-neutral-100 text-neutral-900 py-2 px-4 hover:bg-[#F4C887] transition-all duration-300">
+                class="text-center mt-4 text-xl font-semibold bg-neutral-100 text-neutral-900 py-2 px-4 hover:bg-primary transition-all duration-300">
                 Connexion</RouterLink>
             </div>
 

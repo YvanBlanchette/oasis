@@ -69,6 +69,24 @@ export const useRoomReservationStore = defineStore('roomReservationStore', {
         console.error(error);
         // Gérer l'erreur ici
       }
-    }
+    },
+    //-------------------- Delete reservation --------------------/
+    async deleteReservation(reservation_id) {
+      const response = await fetch(`/api/reservations/${reservation_id}`, {
+        method: "delete",
+        headers: {
+          authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        this.message = data.message;
+        console.log(this.message);
+      } else {
+        this.errors = data.errors;
+      }
+    },
   }
 })

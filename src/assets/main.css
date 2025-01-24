@@ -8,6 +8,18 @@
   text-shadow: 3px 3px 8px rgba(0, 0, 0, 1);
 }
 
+.nav-link {
+  @apply text-black hover:text-primary transition-all duration-200;
+}
+
 .error-message {
   @apply text-sm font-medium animate-pulse text-red-500 text-start pl-[5%] ml-1 h-3.5;
+}
+
+.table-loader {
+  @apply absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/3;
+}
+
+body {
+  @apply bg-white;
 }

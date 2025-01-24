@@ -2,10 +2,8 @@
 //* Components imports
 import Hero from '@/components/Hero.vue'
 import Welcome from '@/components/Welcome.vue'
-import Lodgings from '@/components/Lodgings.vue'
 import Activities from '@/components/Activities.vue'
-import Contact from '@/components/Contact.vue'
-import Map from '@/components/Map.vue'
+import Map from '@/components/Map.vue';
 
 //* Layout imports
 import AuthenticatedLayout from '@/layouts/authenticatedLayout.vue';
@@ -16,9 +14,7 @@ import AuthenticatedLayout from '@/layouts/authenticatedLayout.vue';
     <main class="w-full h-full">
       <Hero />
       <Welcome />
-      <Lodgings />
       <Activities />
-      <Contact />
       <Map />
     </main>
   </AuthenticatedLayout>

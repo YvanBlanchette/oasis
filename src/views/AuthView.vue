@@ -1,33 +1,40 @@
 <script setup>
-import { computed} from 'vue';
+import { ref} from 'vue';
 
 //* Components imports
 import Login from '@/components/Login.vue';
 import Register from '@/components/Register.vue';
-
-//* Stores imports
-import { useMainStore } from '@/stores/main';
+import Toast from '@/components/Toast.vue';
 
 
-const mainStore = useMainStore();
-const hasAccount = computed(() => mainStore.hasAccount);
+const hasAccount = ref(true);
 
+const toggleHasAccount = () => {
+  hasAccount.value = !hasAccount.value;
+}
+
+defineEmits(['toggleAccount']);
 
 </script>
  
 <template>
-  <main class="relative bg-[url(/images/galleria01.jpg)] bg-cover bg-center w-full h-screen">
+  <main class="relative bg-[url(/images/auth.jpg)] bg-cover bg-center w-full h-screen">
   <!-- Background overlay -->
-  <div class="absolute inset-0 bg-neutral-900 opacity-30" />
+  <div class="absolute inset-0 bg-black opacity-20" />
 
-  <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 mt-8  w-[90%] max-w-3xl min-h-[500px] text-neutral-100 text-center bg-neutral-900/50 backdrop-blur-sm p-8 rounded-xl">
+  <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2  w-[90%] max-w-3xl min-h-[500px] text-black text-center bg-white/80 backdrop-blur p-8 rounded-xl">
+    <!-- Logo -->
     <div>
-      <img src="@/assets/images/auberge_logo.png" alt="logo de l'auberge" class="h-32 mx-auto">
+      <img src="/images/oasis_logo.png" alt="logo de l'auberge" class="h-32 mx-auto">
     </div>
     <div class="w-full h-full">
-      <Login v-if="hasAccount" />
-      <Register v-else />
+      <!-- Login form -->
+      <Login v-if="hasAccount" @toggle-account="toggleHasAccount" />
+
+      <!-- Register form -->
+      <Register v-else @toggle-account="toggleHasAccount" />
     </div>
   </div>
  </main>
+ <Toast ref="toast" />
 </template>

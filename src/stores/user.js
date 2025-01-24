@@ -72,6 +72,46 @@ export const useUserStore = defineStore('userStore', {
         this.errors = data.errors;
       }
     },
+    //-------------------- Create user --------------------/
+    async createUser(userData) {
+      const response = await fetch('/api/users/', {
+        method: "post",
+        headers: {
+          authorization: `Bearer ${localStorage.getItem("token")}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(userData),
+      });
+    
+      const data = await response.json();
+    
+      if (response.ok) {
+        this.message = data.message;
+        console.log(this.message);
+      } else {
+        this.errors = data.errors;
+      }
+    },
+    //-------------------- Update user --------------------/
+    async updateUser(user_id, user) {
+      const response = await fetch(`/api/users/${user_id}`, {
+        method: "put",
+        headers: {
+          authorization: `Bearer ${localStorage.getItem("token")}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(user),
+      });
+    
+      const data = await response.json();
+    
+      if (response.ok) {
+        this.message = data.message;
+        console.log(this.message);
+      } else {
+        this.errors = data.errors;
+      }
+    },
     //-------------------- Delete user --------------------/
     async deleteUser(user_id) {
       const response = await fetch(`/api/users/${user_id}`, {

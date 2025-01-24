@@ -99,14 +99,7 @@ watch(
   <main class="w-full h-[calc(100vh-64px)] overflow-hidden p-6">
     <h1 class="text-5xl text-center font-semibold mb-6">Tableau d'hébergements</h1>
 
-    <!-- Loader -->
-    <div v-if="isLoading" class="w-full h-full flex items-center justify-center -mt-12">
-      <Loader color="text-[#F4C887]" />
-    </div>
-
-<template v-else>
-
-  <!-- Sélecteur d'options -->
+    <!-- Sélecteur d'options -->
     <div class="flex justify-center mb-6">
       <select v-model="selectedOption" class="bg-neutral-100 py-2 px-4 rounded-md">
         <option v-for="option in options" :key="option.value" :value="option.value">{{ option.name }}</option>
@@ -114,7 +107,7 @@ watch(
     </div>
 
     <!-- Tableau d'hébergements -->
-    <div  class="scrollable border-2 shadow-inner border-neutral-400">
+    <div class="relative scrollable border-2 shadow-inner border-neutral-400">
       <table class="w-full text-center">
 
         <thead class="bg-neutral-400 text-sm" :class="showEditModal || showDeleteModal ? 'static z-0' : ''">
@@ -128,8 +121,14 @@ watch(
           </tr>
         </thead>
 
-        <tbody class="shadow-inner">
-          <tr v-for="(lodging, index) in filteredLodgings" :key="lodging.id" :class="index % 2 === 0 ? 'bg-neutral-100' : ''">
+        <!-- Loader -->
+        <tbody v-if="isLoading" class="table-loader">
+          <Loader color="text-primary" />
+        </tbody>
+
+        <tbody v-else class="shadow-inner">
+          <tr v-for="(lodging, index) in filteredLodgings" :key="lodging.id"
+            :class="index % 2 === 0 ? 'bg-neutral-100' : ''">
             <!-- Numéro de l'hébergement -->
             <td class="p-4 text-start border-r-2 border-neutral-400">
               {{ lodging.category === 'auberge' ? 'Chambre' : lodging.category === 'condo' ? 'Condo' : 'Chalet' }}
@@ -137,7 +136,8 @@ watch(
             </td>
 
             <!-- Catégorie -->
-            <td class="p-4 border-r-2 border-neutral-400">{{ lodging.category === 'auberge' ? 'Chambre' : lodging.category === 'condo' ? 'Condo' : 'Chalet' }}</td>
+            <td class="p-4 border-r-2 border-neutral-400">{{ lodging.category === 'auberge' ? 'Chambre' :
+              lodging.category === 'condo' ? 'Condo' : 'Chalet' }}</td>
 
             <!-- Bâtiment -->
             <td v-if="selectedOption === 'rooms' || selectedOption === 'lodgings'"
@@ -158,7 +158,7 @@ watch(
             <!-- Actions -->
             <td class="p-4 flex items-center justify-center gap-4">
               <button @click="showEditModal = true">
-                <i class="fa-solid fa-pen-to-square hover:text-[#F4C887] transition-all duration-200"></i>
+                <i class="fa-solid fa-pen-to-square hover:text-primary transition-all duration-200"></i>
               </button>
               <button @click="showDeleteModal = true">
                 <i class="fa-regular fa-trash-can hover:text-red-500 transition-all duration-200"></i>
@@ -168,7 +168,6 @@ watch(
         </tbody>
       </table>
     </div>
-    </template>
   </main>
 
   <Modal v-if="showEditModal">

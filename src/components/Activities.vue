@@ -65,11 +65,12 @@ watch(
 </script>
 
 <template>
-  <section id="activities" class="bg-neutral-900 text-neutral-100 w-full h-full min-h-[500px]">
+  <section id="activities" class="bg-white text-black w-full h-full min-h-[500px]">
     <div class="w-[90%] max-w-7xl mx-auto h-full py-12 text-center">
-      <h1 class="text-4xl uppercase text-center font-bold tracking-wide pb-2">Quoi faire durant votre séjour</h1>
-      <h2 class="text-2xl uppercase text-center tracking-wide pb-8">Vivez pleinement l'expérience de l'Auberge du Lac de la Montagne</h2>
-      <p class="text-center text-lg">En hiver comme en été, agrémentez votre séjour avec des activités plus amusantes les unes que les autres. Notre équipe d'animation vous offre une programmation qui sort de l'ordinaire. Vous avez du temps libre? Réservez votre place parmi nos activités offertes autant le matin, l'après-midi qu'en soirée.</p>
+      <h2 class="text-2xl uppercase text-center tracking-wide pb-2">Quoi faire durant votre séjour</h2>
+      <h1 class="text-4xl uppercase text-center font-bold tracking-wide pb-8">Vivez pleinement l'expérience de l'Oasis Beach Club</h1>
+      <p class="text-center text-lg">Ensoleillez votre journée avec des activités passionnantes. Notre équipe d'animation vous offre une programmation estivale qui vous fera découvrir les plaisirs de la plage. Vous avez du temps libre ? Réservez votre place parmi nos activités nautiques, sportives ou de détente offertes tout au long de la journée.
+      </p>
       
       <img src="@/assets/images/bar--white.svg" class="mx-auto mt-12 mb-2 w-52">
 

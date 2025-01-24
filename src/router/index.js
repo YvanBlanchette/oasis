@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
-import LodgingView from '@/views/LodgingView.vue'
+import HomeView from '@/views/HomeView.vue'
 import ActivityView from '@/views/ActivityView.vue'
 import AuthView from '@/views/AuthView.vue'
 import DashboardView from '@/views/dashboard/DashboardView.vue'
@@ -12,7 +11,6 @@ import ActivitiesView from '@/views/dashboard/ActivitiesView.vue'
 import CustomersView from '@/views/dashboard/CustomersView.vue'
 import ReservationsView from '@/views/dashboard/ReservationsView.vue'
 import EmployesView from '@/views/dashboard/EmployesView.vue'
-import SummaryView from '@/views/dashboard/SummaryView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -26,11 +24,6 @@ const router = createRouter({
       path: '/activities/:id',
       name: 'activity',
       component: ActivityView,
-    },
-    {
-      path: '/lodgings/:id',
-      name: 'lodging',
-      component: LodgingView,
     },
     {
       path: '/my-reservations',
@@ -89,7 +82,6 @@ const router = createRouter({
 
 router.beforeEach(async (to, from) => {
   const authStore = useAuthStore();
-  await authStore.getUser();
 
   // Si l'utilisateur est connecté et qu'il essaie d'entrer sur une page d'invité
   if (to.meta.guest && authStore.isAuthenticated) {

@@ -13,8 +13,7 @@ export default defineConfig({
       resolvers: [
         PrimeVueResolver()
       ]
-    })
-  ],
+    })],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
