@@ -6,6 +6,17 @@ export const formatCurrency = (number) => {
   }).format(number)
 };
 
+export function formatDate(dateString) {
+  const date = new Date(dateString);
+  const options = {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  };
+  const formatter = new Intl.DateTimeFormat('fr-CA', options);
+  return formatter.format(date);
+}
+
 
 export const capitalize = (string) => {
   return string.charAt(0).toUpperCase() + string.slice(1);
