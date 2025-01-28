@@ -1,20 +1,20 @@
 <script setup>
+//*-------------------- Imports --------------------*//
 import { ref} from 'vue';
 
-//* Components imports
-import Login from '@/components/Login.vue';
-import Register from '@/components/Register.vue';
-import Toast from '@/components/Toast.vue';
+// Components imports
+import Login from '@/components/auth/Login.vue';
+import Toast from '@/components/shared/Toast.vue';
+import Register from '@/components/auth/Register.vue';
 
-
+//*-------------------- Variables --------------------*//
+defineEmits(['toggleAccount']);
 const hasAccount = ref(true);
 
+//*-------------------- Functions --------------------*//
 const toggleHasAccount = () => {
   hasAccount.value = !hasAccount.value;
 }
-
-defineEmits(['toggleAccount']);
-
 </script>
  
 <template>

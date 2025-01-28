@@ -1,15 +1,20 @@
 <script setup>
-import DashboardHeader from '@/components/DashboardHeader.vue';
-import Toast from '@/components/Toast.vue'
+//*-------------------- Imports --------------------*//
+// Components imports
+import Toast from '@/components/shared/Toast.vue'
+import DashboardHeader from '@/components/dashboard/DashboardHeader.vue';
+import DashboardFooter from '@/components/dashboard/DashboardFooter.vue';
 </script>
  
 <template>
- <div class="w-full h-full min-h-screen flex justify-between">
+
+ <div class="w-full h-screen flex justify-between overflow-hidden">
     <DashboardSidebar />
-    <div class="w-full h-full flex flex-col">
+    <div class="w-full h-full flex flex-col justify-between items-center">
       <DashboardHeader />
-      <RouterView />
-      <Toast ref="toast" />
+      <slot />
+      <DashboardFooter />
     </div>
+    <Toast ref="toast" />
  </div>
 </template>

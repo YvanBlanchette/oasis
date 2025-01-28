@@ -1,5 +1,14 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
+//*-------------------- Imports ---------------------*//
+import { onMounted } from 'vue';
+import { useAuthStore } from './stores/auth';
+
+ //*-------------------- Stores ---------------------*//
+const authStore = useAuthStore()
+
+onMounted(() => {
+  authStore.setData();
+})
 </script>
 
 <template>

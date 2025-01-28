@@ -1,17 +1,18 @@
 <script setup>
-//* Components imports
-import Hero from '@/components/Hero.vue'
-import Welcome from '@/components/Welcome.vue'
-import Activities from '@/components/Activities.vue'
-import Map from '@/components/Map.vue';
+//*-------------------- Imports --------------------*//
+// Components imports
+import Map from '@/components/homepage/Map.vue';
+import Hero from '@/components/homepage/Hero.vue'
+import Welcome from '@/components/homepage/Welcome.vue'
+import Activities from '@/components/homepage/Activities.vue'
 
-//* Layout imports
+// Layout imports
 import AuthenticatedLayout from '@/layouts/authenticatedLayout.vue';
 </script>
 
 <template>
   <AuthenticatedLayout>
-    <main class="w-full h-full">
+    <main class="w-full h-full overflow-hidden">
       <Hero />
       <Welcome />
       <Activities />

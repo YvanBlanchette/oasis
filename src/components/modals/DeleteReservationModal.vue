@@ -1,5 +1,5 @@
 <script setup>
-  import Modal from '@/components/Modal.vue';
+  import Modal from '@/components/shared/Modal.vue';
 
   defineEmits: ['close-modal']
 

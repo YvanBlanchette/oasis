@@ -18,14 +18,15 @@ defineEmits(['update:inputValue'])
 
 <template>
   <input
-    :required="required"
-    type="time"
-    :id="id"
-    :value="inputValue"
-    @input="$emit('update:inputValue', $event.target.value)"
-    min="09:00"
-    max="18:00"
-    class="bg-neutral-900/30 text-neutral-100 px-4 py-1 rounded-md h-[40px] w-[150px]" 
-    :class="className"
-  />
+  :required="required"
+  type="time"
+  :id="id"
+  :value="inputValue"
+  @input="$emit('update:inputValue', $event.target.value)"
+  min="09:00"
+  max="18:00"
+  step="900"
+  class="bg-neutral-900/30 text-neutral-100 px-4 py-1 rounded-md h-[40px] w-[150px]" 
+  :class="className"
+/>
 </template>

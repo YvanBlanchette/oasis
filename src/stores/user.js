@@ -4,17 +4,14 @@ export const useUserStore = defineStore('userStore', {
   state: () => {
     return {
       users: null,
-      guests: null,
       staff: null,
-      admin: null,
-      employes: null,
+      message: '',
       errors: {}
     }
   },
   actions: {
-  //-------------------- Get authenticated user --------------------/
-  async getUsers() {
-    if (localStorage.getItem("token")) {
+    //-------------------- Get users from the db --------------------/
+    async getUsers() {
       const response = await fetch("/api/users", {
         headers: {
           authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -23,14 +20,9 @@ export const useUserStore = defineStore('userStore', {
       const data = await response.json();
       if (response.ok) {
         this.users = data.users;
-        this.guests = data.guests;
-        this.staffs = data.staffs;
-        this.admins = data.admins;
-        this.employes = [...data.admins, ...data.staffs];
-        return data.users;
+        return this.users;
       }
-    }
-  },
+    },
     //-------------------- Login / Register user --------------------/
     async authenticate(apiRoute, formData) {
       const response = await fetch(`/api/${apiRoute}`, {
@@ -45,31 +37,9 @@ export const useUserStore = defineStore('userStore', {
         console.log(data.errors);
       } else {
         this.errors = {};
-        localStorage.setItem('token', data.token);
         this.user = data.user;
         this.isAuthenticated = true;
         this.router.push({ name: "home" });
-      }
-    },
-    //-------------------- Logout user --------------------//
-    async logout() {
-      const response = await fetch("/api/logout", {
-        method: "post",
-        headers: {
-          authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        this.user = null;
-        this.isAuthenticated = false;
-        this.errors = {};
-        localStorage.removeItem("token");
-        this.router.push({ name: "auth" });
-      } else {
-        this.errors = data.errors;
       }
     },
     //-------------------- Create user --------------------/
@@ -82,9 +52,9 @@ export const useUserStore = defineStore('userStore', {
         },
         body: JSON.stringify(userData),
       });
-    
+
       const data = await response.json();
-    
+
       if (response.ok) {
         this.message = data.message;
         console.log(this.message);
@@ -102,11 +72,13 @@ export const useUserStore = defineStore('userStore', {
         },
         body: JSON.stringify(user),
       });
-    
+
       const data = await response.json();
-    
+
       if (response.ok) {
+        this.user = data.user;
         this.message = data.message;
+        console.log(this.user);
         console.log(this.message);
       } else {
         this.errors = data.errors;

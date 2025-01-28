@@ -1,67 +1,30 @@
-<style scoped>
-  thead {
-    position: relative;
-  }
-
-  div.scrollable {
-    overflow-y: auto;
-    overflow-x: hidden;
-    width: 95%;
-    margin: 0 auto;
-    height: 100%;
-    max-height: 76vh;
-  }
-
-  div.scrollable::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  div.scrollable::-webkit-scrollbar-thumb {
-    background-color: #ccc;
-    border-radius: 3px;
-  }
-
-  div.scrollable::-webkit-scrollbar-track {
-    background-color: #eee;
-  }
-
-  div.scrollable>table>thead {
-    position: sticky;
-    top: 0;
-    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
-  }
-
-  .pagination-button {
-    @apply disabled:text-neutral-200 text-neutral-900 hover:text-primary transition-all duration-200;
-  }
-</style>
-
 <script setup>
 //*-------------------- Imports --------------------*//
 import { onMounted, ref } from 'vue';
 
 // Components imports
-import Loader from '@/components/Loader.vue';
+import Loader from '@/components/shared/Loader.vue';
 import EditReservationsModal from '@/components/modals/EditReservationsModal.vue';
 import DeleteReservationModal from '@/components/modals/DeleteReservationModal.vue';
 
+// Layout imports
+import DashboardLayout from '@/layouts/DashboardLayout.vue';
+
 // Stores imports
 import { useAuthStore } from '@/stores/auth';
-import { useRoomReservationStore } from '@/stores/room_reservation';
+import { useReservationStore } from '@/stores/reservation';
+import { formatDate } from '@/lib/helpers';
 
 
 //*-------------------- Stores --------------------*//
-const roomReservationStore = useRoomReservationStore();
+const reservationStore = useReservationStore();
 const authStore = useAuthStore();
 
 
-//*-------------------- Variables --------------------*//
+//*-------------------- Variables / States --------------------*//
+const isLoading = ref(true);
 const reservations = ref([]);
 const selectedItem = ref({});
-
-
-//*-------------------- States --------------------*//
-const isLoading = ref(true);
 const showEditModal = ref(false);
 const showDeleteModal = ref(false);
 
@@ -71,13 +34,12 @@ const showDeleteModal = ref(false);
 onMounted(async () => {
   try {
     isLoading.value = true;
-    await roomReservationStore.getReservations('/api/reservations');
-    reservations.value = roomReservationStore.reservations.data;
+    const response = await reservationStore.getReservations('/api/reservations');
+    reservations.value = response.data;
   } catch (error) {
     console.error("Failed to load reservations:", error);
   } finally {
-    console.log(reservations.value);
-    console.log(roomReservationStore.reservations);
+    console.log(reservationStore.reservations);
     isLoading.value = false;
   }
 });
@@ -86,8 +48,8 @@ onMounted(async () => {
 const firstPage = async () => {
   try {
     isLoading.value = true;
-    await roomReservationStore.getReservations(roomReservationStore.reservations.first_page_url);
-    reservations.value = roomReservationStore.reservations.data;
+    await reservationStore.getReservations(reservationStore.reservations.first_page_url);
+    reservations.value = reservationStore.reservations.data;
   } catch (error) {
     console.log("Failed to load activities:", error);
   } finally {
@@ -99,8 +61,8 @@ const firstPage = async () => {
 const previousPage = async () => {
   try {
     isLoading.value = true;
-    await roomReservationStore.getPreviousPageResults();
-    reservations.value = roomReservationStore.reservations.data;
+    await reservationStore.getPreviousPageResults();
+    reservations.value = reservationStore.reservations.data;
   } catch (error) {
     console.log("Failed to load activities:", error);
   } finally {
@@ -112,8 +74,8 @@ const previousPage = async () => {
 const nextPage = async () => {
   try {
     isLoading.value = true;
-    await roomReservationStore.getNextPageResults();
-    reservations.value = roomReservationStore.reservations.data;
+    await reservationStore.getNextPageResults();
+    reservations.value = reservationStore.reservations.data;
   } catch (error) {
     console.log("Failed to load activities:", error);
   } finally {
@@ -125,8 +87,8 @@ const nextPage = async () => {
 const lastPage = async () => {
   try {
     isLoading.value = true;
-    await roomReservationStore.getReservations(roomReservationStore.reservations.last_page_url);
-    reservations.value = roomReservationStore.reservations.data;
+    await reservationStore.getReservations(reservationStore.reservations.last_page_url);
+    reservations.value = reservationStore.reservations.data;
   } catch (error) {
     console.log("Failed to load activities:", error);
   } finally {
@@ -141,13 +103,13 @@ function selectItem(item) {
 
 // Function to refresh reservations
 const refreshItems = async () => {
-  await roomReservationStore.getReservations();
-  items.value = roomReservationStore.items;
+  await reservationStore.getReservations();
+  items.value = reservationStore.items;
 }
 
 // Function to update reservation
 const updateReservation = async (reservation_id) => {
-  await roomReservationStore.updateReservation(reservation_id, { ...selectedItem.value });
+  await reservationStore.updateReservation(reservation_id, { ...selectedItem.value });
   console.log({ ...selectedItem.value });
   refreshItems();
   showEditModal.value = false;
@@ -155,45 +117,52 @@ const updateReservation = async (reservation_id) => {
 
 // Function to delete a reservation
 const deleteReservation = async (reservation_id) => {
-  await roomReservationStore.deleteReservation(reservation_id);
+  await reservationStore.deleteReservation(reservation_id);
   refreshItems();
   showDeleteModal.value = false;
+}
+
+const passedReservations = (reservation_date) => {
+  const today = new Date();
+  const activityDate = new Date(reservation_date);
+  return activityDate < today;
 }
 </script>
 
 <template>
-  <main class="w-full h-[calc(100vh-64px)] overflow-hidden p-6">
+  <DashboardLayout>
+  <main class="w-full h-[calc(100vh-100px)] overflow-hidden p-3 text-black">
+    <div class="w-full h-[60px] flex flex-col justify-between">
     <!-- Page Title -->
-    <h1 class="text-5xl text-center font-semibold">Tableau des réservations</h1>
+    <h1 class="text-2xl lg:text-3xl xl:text-4xl text-black text-center font-semibold">Tableau des réservations</h1>
 
     <!-- Pagination Controls -->
-    <div class="flex justify-end pr-[5%] h-[30px] items-center px-4 mb-2 -mt-4">
-      <div v-if="!isLoading" class="flex justify-end items-center gap-3 px-4">
-        <!-- First page button -->
-        <button @click="firstPage()" :disabled="roomReservationStore.reservations.prev_page_url === null"
-          class="pagination-button">
+    <div v-if="!isLoading" class="flex justify-between mr-5 h-[30px] items-center px-4 mb-2 -mt-6">
+      <div class="flex justify-end items-center gap-3 px-4">
+        <button @click="firstPage()" :disabled="reservationStore.reservations.prev_page_url === null" class="pagination-button">
           <i class="fa-solid fa-angles-left"></i>
         </button>
-        <!-- Previous page button -->
-        <button @click="previousPage()" :disabled="roomReservationStore.reservations.prev_page_url === null"
-          class="pagination-button">
+        <button @click="previousPage()" :disabled="reservationStore.reservations.prev_page_url === null" class="pagination-button">
           <i class="fa-solid fa-angle-left text-lg"></i>
         </button>
-        <!-- Page number -->
         <span class="mb-0.5">
-          Page {{ roomReservationStore.reservations.current_page }} de {{ roomReservationStore.reservations.last_page }}
+          Page {{ reservationStore.reservations.current_page }} de {{ reservationStore.reservations.last_page }}
         </span>
-        <!-- Next page button -->
-        <button @click="nextPage()" :disabled="roomReservationStore.reservations.next_page_url === null"
-          class="pagination-button">
+        <button @click="nextPage()" :disabled="reservationStore.reservations.next_page_url === null" class="pagination-button">
           <i class="fa-solid fa-angle-right text-lg"></i>
         </button>
-        <!-- Last page button -->
-        <button @click="lastPage()" :disabled="roomReservationStore.reservations.next_page_url === null"
-          class="pagination-button">
+        <button @click="lastPage()" :disabled="reservationStore.reservations.next_page_url === null" class="pagination-button">
           <i class="fa-solid fa-angles-right"></i>
         </button>
       </div>
+
+    <!-- Add reservation button -->
+      <button @click="showCreateModal = true"
+        class="text-neutral-900 hover:text-primary/80 transition-all duration-200">
+        <i class="fa-solid fa-plus"></i>
+        Ajouter une activité
+      </button>
+    </div>
     </div>
 
 
@@ -203,12 +172,11 @@ const deleteReservation = async (reservation_id) => {
         <!-- Table Header -->
         <thead class="bg-neutral-400 text-sm w-full" :class="showEditModal || showDeleteModal ? 'static z-0' : ''">
           <tr>
+            <th class="p-4"></th>
+            <th class="p-4">Date de l'activité</th>
+            <th class="p-4">Nom de l'activité</th>
             <th class="p-4">Nom du client</th>
-            <th class="p-4">Type d'hébergement</th>
-            <th class="p-4">Numéro de chambre</th>
-            <th class="p-4">Nombre d'invités</th>
-            <th class="p-4">Date d'arrivée</th>
-            <th class="p-4">Date de départ</th>
+            <th class="p-4">Nombre de participants</th>
             <th class="p-4">Actions</th>
           </tr>
         </thead>
@@ -221,19 +189,18 @@ const deleteReservation = async (reservation_id) => {
         <!-- Table Body -->
         <tbody v-else class="shadow-inner">
           <!-- Table Rows -->
-          <tr v-for="(reservation, index) in reservations" :key="reservation._id"
+          <tr v-for="(reservation, index) in reservations" :key="reservation"
             :class="index % 2 === 0 ? 'bg-neutral-100' : ''">
-            <td class="p-4">{{ reservation.user.name }}</td>
-            <td class="p-4">{{ reservation.lodging.category }}</td>
-            <td class="p-4">{{ reservation.lodging.room_number }}</td>
-            <td class="p-4">{{ reservation.nb_guests }}</td>
-            <td class="p-4">{{ reservation.arrival_date }}</td>
-            <td class="p-4">{{ reservation.departure_date }}</td>
+            <td class="p-4"><i v-tooltip.top="'Activité complétée'" v-if="passedReservations(reservation.reservation_date)" class="fa-regular fa-circle-check text-green-700"></i></td>
+            <td class="p-4">{{ formatDate(reservation.reservation_date) }} à {{ reservation.reservation_time.slice(0,5) }}</td>
+            <td class="p-4">{{ reservation.activity?.name }}</td>
+            <td class="p-4">{{ reservation.user?.displayName }}</td>
+            <td class="p-4">{{ reservation.nb_participants }} participants</td>
             <td class="p-4 flex items-center justify-center gap-4">
-              <button @click="selectItem(reservation); showEditModal = true">
+              <button v-tooltip.top="'Modifier'" @click="selectItem(reservation); showEditModal = true">
                 <i class="fa-solid fa-pen-to-square hover:text-primary transition-all duration-200"></i>
               </button>
-              <button v-if="authStore.user.role === 'admin'" @click="selectItem(reservation); showDeleteModal = true">
+              <button v-tooltip.top="'Supprimer'" @click="selectItem(reservation); showDeleteModal = true">
                 <i class="fa-regular fa-trash-can hover:text-red-500 transition-all duration-200"></i>
               </button>
             </td>
@@ -242,6 +209,7 @@ const deleteReservation = async (reservation_id) => {
       </table>
     </div>
   </main>
+</DashboardLayout>
 
 
   <!-- Edit Reservation Modal -->

@@ -1,13 +1,19 @@
 <script setup>
-import Modal from '@/components/Modal.vue';
+import Modal from '@/components/shared/Modal.vue';
 import { useUserStore } from '@/stores/user';
 import { computed, onMounted, ref } from 'vue';
-import Input from '../form/Input.vue';
-import { useLodgingStore } from '@/stores/lodging';
+
+import DatePicker from '@/components/form/DatePicker.vue';
+import TimePicker from '@/components/form/TimePicker.vue';
+import { useActivityStore } from '@/stores/activity';
 
 const userStore = useUserStore();
-const lodgingStore = useLodgingStore();
+const activityStore = useActivityStore();
 
+const users = ref([]);
+const activities = ref([]);
+
+defineEmits(['close-modal']);
 
 const props = defineProps({
   selectedItem: Object,
@@ -15,25 +21,20 @@ const props = defineProps({
 });
 
 const isLoading = ref(true);
-onMounted(() => {
-  try {
-    userStore.getUsers();
-    lodgingStore.getLodgings();
-  } catch (error) {
-    console.log(error);
-  } finally {
-    isLoading.value = false;
-    console.log(lodgingStore.lodgings);
-    console.log(props.selectedItem);
-  }
+
+onMounted(async () => {
+  users.value = await userStore.getUsers();
+  activities.value = await activityStore.getActivities();
+  isLoading.value = false
 })
 
-const categories = ["Chambre en auberge", "Condo", "Chalet"];
+
 
 </script>
 
 <template>
   <Modal>
+    <div class="min-h-[400px] w-full flex flex-col justify-between">
     <!-- Close button -->
     <button @click="$emit('close-modal')"
       class="absolute top-4 right-4 w-7 h-7 flex items-center justify-center transition-all duration-200 rounded-md hover:bg-neutral-400/80">
@@ -41,46 +42,55 @@ const categories = ["Chambre en auberge", "Condo", "Chalet"];
     </button>
     <div class="w-full h-full flex flex-col items-center justify-center">
       <!-- Modal Title -->
-      <h1 class="text-5xl text-neutral-100 text-center font-semibold mb-6">Modifier une réservation</h1>
+      <h1 class="text-5xl text-neutral-100 text-center mb-6">Modifier une réservation</h1>
 
       <div v-if="isLoading" class="table-loader">
         <Loader color="text-primary" />
       </div>
       <!-- Form -->
-      <form v-else @submit.prevent="updateReservation(selectedItem.id)" class="flex flex-col ">
-        <div class="flex gap-8 w-full justify-center">
-          <div>
+      <form v-else @submit.prevent="updateReservation(selectedItem.id)" class="flex flex-col w-full">
+        <div class="flex flex-col gap-8 w-full justify-center">
+          <div class="w-full">
 
-            <!-- Name Input -->
+            <div class="w-full flex justify-between items-center gap-10 mb-4">
+            <!-- Date Input -->
             <div class="flex flex-col">
-              <label for="user" class="text-neutral-100 font-medium text-xl">Client(e)</label>
-              <select name="user" id="user" class="px-4 py-1 rounded-md">
-                <option v-for="user in userStore.guests" :key="user.id" value="user"
+              <label for="reservation_date" class="text-neutral-100 text-lg mb-1">Date</label>
+              <DatePicker required="true" id="reservation_date" :inputValue="selectedItem.reservation_date" />
+            </div>
+
+            <!-- Time Input -->
+            <div class="flex flex-col">
+              <label for="reservation_time" class="text-neutral-100 text-lg mb-1">Heure</label>
+              <TimePicker required="true" id="reservation_time" :inputValue="selectedItem.reservation_time" />
+            </div>
+
+            <!-- Participants Input -->
+            <div class="flex flex-col">
+              <label for="nb_participants" class="text-neutral-100  text-lg mb-1">Participants</label>
+              <NumberInput required="true" id="nb_participants" :modelValue="selectedItem.nb_participants" />
+            </div>
+            </div>
+
+            <!-- User selector -->
+            <div class="flex flex-col mb-4">
+              <label for="user" class="text-neutral-100 text-lg mb-1">Client(e)</label>
+              <select name="user" id="user" class="bg-neutral-900/30 text-neutral-100 px-4 py-1 rounded-md h-[40px]">
+                <option v-for="user in userStore.users" :key="user.id" value="user"
                   :selected="user.id === selectedItem.user.id">{{ user.name }}</option>
               </select>
             </div>
 
-            <!-- Lodging category -->
+            <!-- Activity selector -->
             <div class="flex flex-col">
-              <label for="user" class="text-neutral-100 font-medium text-xl">Catégorie</label>
-              <select name="category" id="category" class="px-4 py-1 rounded-md">
-                <option v-for="category in categories" :key="category.name" :selected="category === selectedItem.category">
-                  {{ category }}
+              <label for="activity" class="text-neutral-100 text-lg mb-1">Activité</label>
+              <select name="category" id="category" class="bg-neutral-900/30 text-neutral-100 px-4 py-1 rounded-md h-[40px]">
+                <option v-for="activity in activityStore.activities" :key="activity.name" :selected="activity === selectedItem.activity">
+                  {{ activity.name }}
                 </option>
               </select>
             </div>
 
-            <!-- Room number -->
-            <div class="flex flex-col">
-              <label for="user" class="text-neutral-100 font-medium text-xl">Numéro de chambre</label>
-              <select name="lodging" id="lodging" class="px-4 py-1 rounded-md">
-                <!-- <template v-if="selectedItem.category === 'Chambre à l\'auberge'"> -->
-                  <option v-for="lodging in lodgingStore.rooms" :key="lodging.id" :selected="lodging.room_number === selectedItem.lodging.room_number">
-                    <span v-if="lodging.building">{{ lodging.building }} - </span>{{ lodging.room_number }}
-                  </option>
-                <!-- </template> -->
-              </select>
-            </div>
           </div>
 
           <div>
@@ -88,15 +98,16 @@ const categories = ["Chambre en auberge", "Condo", "Chalet"];
           </div>
         </div>
         <!-- Buttons -->
-        <div class="flex justify-end items-center gap-4 mt-6 text-neutral-100">
-          <button @click="$emit('close-modal')"
-            class="hover:bg-neutral-500/80 px-4 py-1 rounded-md hover:shadow font-medium transition-all duration-200">
+        <div class="flex justify-end items-center gap-4 text-neutral-100">
+          <button type="button" @click="$emit('close-modal')"
+            class="hover:text-primary px-4 py-1 rounded-md transition-all duration-200">
             Annuler
           </button>
           <input type="submit" value="Mettre à jour"
-            class="bg-red-500 hover:bg-red-700 px-4 py-1 rounded-md shadow text-neutral-100 font-medium transition-all duration-200">
+            class="cursor-pointer bg-red-500 hover:bg-red-700 px-4 py-1 rounded-md shadow text-neutral-100 transition-all duration-200">
         </div>
       </form>
     </div>
+  </div>
   </Modal>
 </template>

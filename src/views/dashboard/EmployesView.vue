@@ -1,80 +1,94 @@
-<style scoped>
-thead {
-  position: relative;
-}
-
-div.scrollable {
-  overflow-y: auto;
-  overflow-x: hidden;
-  width: 95%;
-  margin: 0 auto;
-  height: 76vh;
-}
-
-div.scrollable::-webkit-scrollbar {
-  width: 6px;
-}
-
-div.scrollable::-webkit-scrollbar-thumb {
-  background-color: #ccc;
-  border-radius: 3px;
-}
-
-div.scrollable::-webkit-scrollbar-track {
-  background-color: #eee;
-}
-
-div.scrollable>table>thead {
-  position: sticky;
-  top: 0;
-  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
-}
-</style>
-
 <script setup>
-import Loader from '@/components/Loader.vue';
-import Modal from '@/components/Modal.vue';
-import { useUserStore } from '@/stores/user';
+//*-------------------- Imports --------------------*//
 import { onMounted, ref } from 'vue';
 
-const userStore = useUserStore();
+// Component imports
+import Loader from '@/components/shared/Loader.vue';
+import CreateStaffModal from '@/components/modals/CreateStaffModal.vue';
+import EditStaffModal from '@/components/modals/EditStaffModal.vue';
+import DeleteStaffModal from '@/components/modals/DeleteStaffModal.vue';
 
-// Variable to hold the employes
-const employes = ref([]);
+// Layout imports
+import DashboardLayout from '@/layouts/DashboardLayout.vue';
 
-// Loading State
+// Stores imports
+import { useStaffStore } from '@/stores/staff';
+
+
+//*-------------------- Stores --------------------*//
+const staffStore = useStaffStore();
+
+
+//*-------------------- Variables --------------------*//
+const staff = ref([]);
+const selectedUser = ref({});
+
+
+//*-------------------- States --------------------*//
 const isLoading = ref(true);
-
-// Edit Modal State
+const showCreateModal = ref(false);
 const showEditModal = ref(false);
-
-// Delete Modal State
 const showDeleteModal = ref(false);
 
+
+//*-------------------- Functions --------------------*//
 // Fetch activities on component mount
 onMounted(async () => {
   try {
     isLoading.value = true;
-    await userStore.getUsers();
-    employes.value = userStore.employes;
+    await staffStore.getStaff();
+    staff.value = staffStore.staff;
   } catch (error) {
     console.error("Failed to load activities:", error);
   } finally {
-    console.log(employes.value);
+    console.log(staff.value);
     isLoading.value = false;
   }
 });
+
+// Function to handle user selection
+function selectUser(user) {
+  selectedUser.value = user;
+}
+
+// Function to refresh users
+const refreshUsers = async () => {
+  await staffStore.getStaff();
+  staff.value = staffStore.staff;
+}
+
+const toggleStatus = async () => {
+  await staffStore.toggleStatus(selectedUser.value.id);
+  refreshUsers();
+  if (selectedUser.value.status === 1) {
+    toaster.showToast('success', 'Désactivation d\'un employé', 'L\'employé n\'est plus disponible.');
+  } else {
+    toaster.showToast('success', 'Activation d\'un employé', 'L\'emp^loyé est maintenant disponible!');
+  }
+}
 </script>
 
 <template>
-  <main class="w-full h-[calc(100vh-64px)] overflow-hidden p-6">
-    <h1 class="text-5xl text-center font-semibold mb-6">Tableau des employés</h1>
+  <DashboardLayout>
+  <main class="w-full h-[calc(100vh-100px)] overflow-hidden p-3 text-black">
+    <div class="w-full h-[60px] flex flex-col justify-between">
+    <!-- Title -->
+    <h1 class="text-2xl lg:text-3xl xl:text-4xl text-center font-semibold">Tableau des employés</h1>
 
+    <!-- Add staff member button -->
+    <div class="flex justify-end h-[30px] mr-5 items-center px-4 -mt-4">
+      <button @click="showCreateModal = true"
+        class="text-neutral-900 hover:text-primary/80 transition-all duration-200">
+        <i class="fa-solid fa-user-plus"></i>
+        Ajouter un employé
+      </button>
+    </div>
+  </div>
 
-    <!-- Activities Table -->
+    <!-- Staff members Table -->
     <div class="relative scrollable border-2 shadow-inner border-neutral-400">
-      <!-- Table Header -->
       <table class="w-full text-center">
+        <!-- Table Header -->
         <thead class="bg-neutral-400 text-sm" :class="showEditModal || showDeleteModal ? 'static z-0' : ''">
           <tr>
             <th class="p-4"></th>
@@ -82,55 +96,42 @@ onMounted(async () => {
             <th class="p-4">Rôle</th>
             <th class="p-4">Courriel</th>
             <th class="p-4">Téléphone</th>
-            <th class="p-4">Dernière visite</th>
+            <th class="p-4">Date d'embauche</th>
+            <th class="p-4">Status</th>
             <th class="p-4">Actions</th>
           </tr>
         </thead>
 
-        
-    <!-- Loader -->
-    <div v-if="isLoading" class="table-loader">
-      <Loader color="text-primary" />
-    </div>
+        <!-- Loader -->
+        <tbody v-if="isLoading" class="table-loader">
+          <Loader color="text-primary" />
+        </tbody>
 
         <!-- Table Body -->
-        <tbody class="shadow-inner text-center">
-          <tr v-for="(employe, index) in employes" :key="employe._id" :class="index % 2 === 0 ? 'bg-neutral-100' : ''">
-            <!-- Image -->
+        <tbody v-else class="shadow-inner">
+          <tr v-for="(user, index) in staff" :key="user._id" :class="index % 2 === 0 ? 'bg-neutral-100' : ''">
             <td class="px-4 py-2">
-              <img class="w-10 h-10 object-cover rounded-full" :src="employe.image" :alt="employe.name" />
+              <img class="w-10 h-10 object-cover rounded-full" :src="user.photoURL" :alt="user.displayName" />
             </td>
-  
-            <!-- Name -->
-            <td class="p-4">{{ employe.name }}</td>
-
-            <!-- Role -->
-            <td class="p-4 text-sm">
-              <span v-if="employe.role === 'admin'" class="flex items-center justify-center gap-2">
-                <i class="fa-solid fa-user-tie text-lg"></i>
-                Gérant
-              </span>
-              <span v-if="employe.role === 'staff'" class="flex items-center justify-center gap-2">
-                <i class="fa-solid fa-user text-lg"></i>
-                Employé
-              </span>
-            </td>
-
-            <!-- Email -->
-            <td class="p-4">{{ employe.email }}</td>
-
-            <!-- Phone -->
-            <td class="p-4">{{ employe.phone }}</td>
-
-            <!-- Hiring date -->
-            <td class="p-4">{{ employe.updated_at.slice(0, 10) }}</td>
-
-            <!-- Actions -->
+            <td class="p-4">{{ user.displayName }}</td>
+            <td class="p-4">{{ user.role === 'admin' ? 'Administrateur' : 'Employé' }}</td>
+            <td class="p-4">{{ user.email }}</td>
+            <td class="p-4">{{ user.phone }}</td>
+            <td class="p-4">{{ user.hireDate.slice(0, 10) }}</td>
+            <td class="p-4">{{ user.status === 'active' ? 'Actif' : 'Inactif' }}</td>
             <td class="p-4 flex items-center justify-center gap-4">
-              <button @click="showEditModal = true">
-                <i class="fa-solid fa-pen-to-square hover-secondary"></i>
+              <div>
+              <button v-tooltip.top="'Modifier le statut'" v-if="user.status === 'active'" @click="selectUser(user); toggleStatus()">
+                <i class="fa-solid fa-toggle-on text-primary transition-all duration-200"></i>
               </button>
-              <button @click="showDeleteModal = true">
+              <button v-else @click="selectUser(user); toggleStatus()">
+                <i class="fa-solid fa-toggle-off hover:text-primary transition-all duration-200"></i>
+              </button>
+              </div>
+              <button @click="selectUser(user); showEditModal = true">
+                <i class="fa-solid fa-pen-to-square hover:text-primary transition-all duration-200"></i>
+              </button>
+              <button @click="selectUser(user); showDeleteModal = true">
                 <i class="fa-regular fa-trash-can hover:text-red-500 transition-all duration-200"></i>
               </button>
             </td>
@@ -139,22 +140,14 @@ onMounted(async () => {
       </table>
     </div>
   </main>
+</DashboardLayout>
 
-  <Modal v-if="showEditModal">
-    <button @click="showEditModal = false"
-      class="absolute top-4 right-4 w-7 h-7 flex items-center justify-center transition-all duration-200 rounded-md hover:bg-neutral-200/80">
-      <i class="fa-solid fa-xmark text-xl"></i>
-    </button>
+  <!-- Create Staff Modal -->
+  <CreateStaffModal v-if="showCreateModal" @close-modal="showCreateModal = false" @refreshUsers="refreshUsers" />
 
-    <h1 class="text-4xl text-center font-semibold mb-6">Modifier une activité</h1>
-  </Modal>
+  <!-- Edit Staff Modal -->
+  <EditStaffModal v-if="showEditModal" @close-modal="showEditModal = false" @refreshUsers="refreshUsers" :userData="selectedUser" />
 
-  <Modal v-if="showDeleteModal">
-    <button @click="showDeleteModal = false"
-      class="absolute top-4 right-4 w-7 h-7 flex items-center justify-center transition-all duration-200 rounded-md hover:bg-neutral-200/80">
-      <i class="fa-solid fa-xmark text-xl"></i>
-    </button>
-
-    <h1 class="text-4xl text-center font-semibold mb-6">Supprimer une activité</h1>
-  </Modal>
+  <!-- Delete Staff Modal -->
+  <DeleteStaffModal  v-if="showDeleteModal" @close-modal="showDeleteModal = false" @refreshUsers="refreshUsers" :userData="selectedUser" />
 </template>

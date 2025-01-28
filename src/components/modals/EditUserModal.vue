@@ -1,10 +1,10 @@
 <script setup>
-  import Modal from '@/components/Modal.vue';
+  import Modal from '@/components/shared/Modal.vue';
 
 emits: ['close-modal']
 
 defineProps({
-  selectedGuest: Object,
+  selectedUser: Object,
   updateUser: Function
 });
 </script>
@@ -20,30 +20,30 @@ defineProps({
       <!-- Modal Title -->
       <h1 class="text-5xl text-neutral-100 text-center font-semibold mb-6">Modifier un client</h1>
       <!-- Form -->
-      <form @submit.prevent="updateUser(selectedGuest.id)" class="flex flex-col ">
+      <form @submit.prevent="updateUser(selectedUser.id)" class="flex flex-col ">
         <div class="flex gap-8 w-full justify-center">
           <div>
             <!-- Name Input -->
-            <Input type="text" label="Nom" v-model="selectedGuest.name" className="text-neutral-900 w-[350px]" />
+            <Input type="text" label="Nom" v-model="selectedUser.name" className="text-neutral-900 w-[350px]" />
 
             <!-- Email Input -->
-            <Input type="email" label="Adresse courriel" v-model="selectedGuest.email"
+            <Input type="email" label="Adresse courriel" v-model="selectedUser.email"
               className="text-neutral-900 w-[350px]" />
 
             <!-- Phone Input -->
-            <Input type="tel" label="Téléphone" v-model="selectedGuest.phone" className="text-neutral-900 w-[350px]" />
+            <Input type="tel" label="Téléphone" v-model="selectedUser.phone" className="text-neutral-900 w-[350px]" />
           </div>
 
           <div>
             <!-- Image Input -->
             <div class="relative border border-primary w-[165px] h-[165px] rounded-md mt-3">
               <label for="image" class="flex justify-center items-center w-full h-full  cursor-pointer">
-                <img v-if="selectedGuest.image" :src="selectedGuest.image" alt="image"
+                <img v-if="selectedUser.image" :src="selectedUser.image" alt="image"
                   class="w-[165px] h-[165px] rounded-md object-cover">
                 <i v-else class="fa-solid fa-arrow-up-from-bracket text-6xl text-neutral-300/60"></i>
               </label>
               <input type="file" id="image" class="hidden">
-              <button v-if="selectedGuest.image" @click="selectedGuest.image = ''"
+              <button v-if="selectedUser.image" @click="selectedUser.image = ''"
                 class="absolute top-2 right-2 w-5 h-5 flex items-center justify-center transition-all duration-200 rounded-md bg-red-500 hover:bg-red-600">
                 <i class="fa-solid fa-xmark text-neutral-100"></i>
               </button>

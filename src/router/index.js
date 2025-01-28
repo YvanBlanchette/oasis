@@ -1,12 +1,12 @@
+import { useAuthStore } from '@/stores/auth'
 import { createRouter, createWebHistory } from 'vue-router'
+
+//* Views imports
 import HomeView from '@/views/HomeView.vue'
 import ActivityView from '@/views/ActivityView.vue'
 import AuthView from '@/views/AuthView.vue'
-import DashboardView from '@/views/dashboard/DashboardView.vue'
-import { useAuthStore } from '@/stores/auth'
 import ProfileView from '@/views/ProfileView.vue'
 import MyReservationsView from '@/views/MyReservationsView.vue'
-import RoomsView from '@/views/dashboard/LodgingView.vue'
 import ActivitiesView from '@/views/dashboard/ActivitiesView.vue'
 import CustomersView from '@/views/dashboard/CustomersView.vue'
 import ReservationsView from '@/views/dashboard/ReservationsView.vue'
@@ -40,34 +40,31 @@ const router = createRouter({
       path: '/dashboard',
       redirect: '/dashboard/reservations',
       name: 'dashboard',
-      component: DashboardView,
-      meta: { auth: true, staff: true },
+      
       children: [
-        {
-          path: 'customers',
-          name: 'customers',
-          component: CustomersView,
-        },
         {
           path: 'reservations',
           name: 'reservations',
           component: ReservationsView,
+          meta: { staff: true }
         },
         {
-          path: 'rooms',
-          name: 'rooms',
-          component: RoomsView,
+          path: 'customers',
+          name: 'customers',
+          component: CustomersView,
+          meta: { staff: true }
         },
         {
           path: 'activities',
           name: 'activities',
           component: ActivitiesView,
+          meta: { staff: true }
         },
         {
           path: 'employes',
           name: 'employes',
           component: EmployesView,
-          meta: { admin: true }
+          meta: { admin: true, staff: true }
         },
       ],
     },
@@ -82,27 +79,33 @@ const router = createRouter({
 
 router.beforeEach(async (to, from) => {
   const authStore = useAuthStore();
+  const isStaff = JSON.parse(localStorage.getItem('isStaff'));
+  const isAdmin = JSON.parse(localStorage.getItem('isAdmin'));
+  const isAuthenticated = JSON.parse(localStorage.getItem('isAuthenticated'));
 
   // Si l'utilisateur est connecté et qu'il essaie d'entrer sur une page d'invité
-  if (to.meta.guest && authStore.isAuthenticated) {
+  if (to.meta.guest && isAuthenticated) {
     // Redirection vers la page d'accueil
     return { name: 'home' };
   }
 
   // Si l'utilisateur n'est pas connecté et qu'il essaie d'entrer sur une page privée
-  if (to.meta.auth && !authStore.isAuthenticated) {
+  if (to.meta.auth && !isAuthenticated) {
     // Redirection vers la page d'accueil
     return { name: 'home' };
   }
-
-  // Si l'utilisateur n'est pas un administrateur
-  if (to.meta.admin && authStore.user.role !== 'admin') {
+  // L''utilisateur doit être un admin
+  if (to.meta.admin && !isAdmin) {
+    return { name: 'reservations' };
+  }
+  // L'utilisateur doit faire parti du staff
+  if (to.meta.staff && !isStaff) {
     return { name: 'home' };
   }
 
-  // Si l'utilisateur n'est pas un admin ou un employé
-  if (to.meta.staff && authStore.user.role !== 'admin' && authStore.user.role !== 'staff') {
-    return { name: 'home' };
+  // L'utilisateur ne doit pas être connecté en tant que Staff ou Admin
+  if (to.meta.dashboardGuest && isStaff) {
+    return { name: 'reservations' };
   }
 })
 

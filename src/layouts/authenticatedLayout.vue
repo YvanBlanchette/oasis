@@ -1,7 +1,7 @@
 <script setup>
-import Header from '@/components/Header.vue';
-import Footer from '@/components/Footer.vue';
-import Toast from '@/components/Toast.vue';
+import Header from '@/components/shared/Header.vue';
+import Footer from '@/components/shared/Footer.vue';
+import Toast from '@/components/shared/Toast.vue';
 
  
 </script>
