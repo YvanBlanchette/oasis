@@ -23,8 +23,8 @@ watch(inputValue, (newValue) => {
 <template>
    <fieldset class="bg-transparent px-3 py-0.5 pb-1.5 border border-primary rounded-lg w-[90%] mx-auto text-white" :class="className">
     <legend class="text-black text-start px-1 tracking-wide">{{ label }}</legend>
-    <select novalidate :id="id" :name="name" v-model="inputValue" class="bg-neutral-900/30
-      text-neutral-100 px-4 py-1 focus:outline-none focus:ring-0 focus:ring-offset-0 w-full h-full placeholder:text-neutral-300">
+    <select novalidate :id="id" :name="name" v-model="inputValue" class="bg-black/30
+      text-white px-4 py-1 focus:outline-none focus:ring-0 focus:ring-offset-0 w-full h-full placeholder:text-neutral-300">
       <option :selected="selected" v-for="option in options" :key="option.value" :value="option.value">
         {{ option.name }}
       </option>

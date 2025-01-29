@@ -4,44 +4,33 @@ export const useReservationStore = defineStore('reservationStore', {
   state: () => {
     return {
       reservations: null,
-      summerReservations: null,
-      winterReservations: null,
+      reservation: null,
       message: '',
     }
   },
   actions: {
-    //-------------------- Get Reservations --------------------/
-    async getReservations(url = '/api/reservations') {
-      try {
-        this.reservations = null;
-  
+    //*-------------------- Get Reservations --------------------*//
+    async getReservations(url="/api/reservations") {
         const response = await fetch(url, {
           headers: {
             authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         });
     
-        const data = await response.json();
+      const data = await response.json();
+      if (response.ok) {
         this.reservations = data.reservations;
         this.message = data.message;
         return this.reservations;
-      } catch (error) {
-        console.error(error);
       }
     },
-      //-------------------- Get Previous Page Results --------------------/
-      async getPreviousPageResults() {
-        if (this.reservations.prev_page_url) {
-          await this.getReservations(this.reservations.prev_page_url);
-        }
-      },
-    //-------------------- Get Next Page Results --------------------/
+    //*-------------------- Get Next Page Results --------------------*//
     async getNextPageResults() {
       if (this.reservations.next_page_url) {
         await this.getReservations(this.reservations.next_page_url);
       }
     },
-    //-------------------- Get Reservation by id --------------------/
+    //*-------------------- Get Reservation by id --------------------*//
     async getReservation(reservation_id) {
       try {
         this.reservation = null;
@@ -66,7 +55,7 @@ export const useReservationStore = defineStore('reservationStore', {
         // Gérer l'erreur ici
       }
     },
-    //-------------------- Delete reservation --------------------/
+    //*-------------------- Delete reservation --------------------*//
     async deleteReservation(reservation_id) {
       const response = await fetch(`/api/reservations/${reservation_id}`, {
         method: "DELETE",
@@ -79,12 +68,12 @@ export const useReservationStore = defineStore('reservationStore', {
 
       if (response.ok) {
         this.message = data.message;
-        console.log(this.message);
+        
       } else {
         this.errors = data.errors;
       }
     },
-    //-------------------- Delete reservation --------------------/
+    //*-------------------- Make a reservation --------------------*//
     async makeReservation(reservationData) {
       const response = await fetch(`/api/reservations/`, {
         method: "POST",
@@ -98,12 +87,73 @@ export const useReservationStore = defineStore('reservationStore', {
 
       if (response.ok) {
         this.message = data.message;
-        console.log(this.message);
+        
       } else {
         this.errors = data.errors;
       }
     },
+    //*-------------------- Edit a reservation --------------------*//
+    async editReservation(reservationData, reservation_id) {
+      const response = await fetch(`/api/reservations/${reservation_id}`, {
+        method: "PUT",
+        headers: {
+          authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify(reservationData),
+      });
 
+      const data = await response.json();
 
+      if (response.ok) {
+        this.message = data.message;
+        
+      } else {
+        this.errors = data.errors;
+      }
+    },
+    //*-------------------- Get all reservations from a user --------------------*//
+    async getUserReservations(email) {
+      if (!email) {
+        return;
+      }
+
+      const response = await fetch(`/api/reservations/users/`, {
+        headers: {
+          authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        method: "POST",
+        body: JSON.stringify({email: email}),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        this.reservations = data.reservations;
+        this.message = data.message;
+      } else {
+        this.errors = data.errors;
+      }
+    },
+    //*-------------------- Remove all reservations from a user --------------------*//
+    async removeAllUserReservations(email) {
+      const response = await fetch(`/api/reservations/users/remove-all`, {
+        headers: {
+          authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        method: "POST",
+        body: JSON.stringify({email: email}),
+      });
+
+      const data = await response.json();
+
+      console.log(data);
+      if (response.ok) {
+        this.reservations = data.reservations;
+        this.message = data.message;
+        
+      } else {
+        this.errors = data.errors;
+      }
+    },
   }
 })

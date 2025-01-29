@@ -20,12 +20,12 @@ import Toast from '@/components/shared/Toast.vue';
     </button>
 
     <div class="text-black w-full">
-      <h1 class="text-5xl text-center font-semibold mb-3">Photo de profil</h1>
+      <h1 class="text-4xl lg:text-5xl text-center font-semibold mb-3">Photo de profil</h1>
       <p class="text-xl font-medium mb-4 text-center">Veuillez inscrire l'URL de votre photo de profil</p>
       <Input label="URL de la photo" type="text" id="photoURL" placeholder="Inscrire l'URL de la photo" v-model="userData.photoURL" className="w-full mb-4" />
       <div class="flex justify-end items-center gap-4">
         <button @click="$emit('close-modal')"
-          class="bg-primary hover:bg-primary-dark px-4 py-1 rounded-md shadow text-neutral-100 font-medium transition-all duration-200">
+          class="bg-primary hover:bg-primary-dark px-4 py-1 rounded-md shadow text-white font-medium transition-all duration-200">
           Confirmer
         </button>
       </div>

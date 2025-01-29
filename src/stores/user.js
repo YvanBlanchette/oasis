@@ -10,7 +10,7 @@ export const useUserStore = defineStore('userStore', {
     }
   },
   actions: {
-    //-------------------- Get users from the db --------------------/
+    //*-------------------- Get users from the db --------------------*//
     async getUsers() {
       const response = await fetch("/api/users", {
         headers: {
@@ -23,7 +23,7 @@ export const useUserStore = defineStore('userStore', {
         return this.users;
       }
     },
-    //-------------------- Login / Register user --------------------/
+    //*-------------------- Login / Register user --------------------*//
     async authenticate(apiRoute, formData) {
       const response = await fetch(`/api/${apiRoute}`, {
         method: 'POST',
@@ -42,7 +42,7 @@ export const useUserStore = defineStore('userStore', {
         this.router.push({ name: "home" });
       }
     },
-    //-------------------- Create user --------------------/
+    //*-------------------- Create user --------------------*//
     async createUser(userData) {
       const response = await fetch('/api/users/', {
         method: "post",
@@ -57,12 +57,12 @@ export const useUserStore = defineStore('userStore', {
 
       if (response.ok) {
         this.message = data.message;
-        console.log(this.message);
+        
       } else {
         this.errors = data.errors;
       }
     },
-    //-------------------- Update user --------------------/
+    //*-------------------- Update user --------------------*//
     async updateUser(user_id, user) {
       const response = await fetch(`/api/users/${user_id}`, {
         method: "put",
@@ -78,13 +78,11 @@ export const useUserStore = defineStore('userStore', {
       if (response.ok) {
         this.user = data.user;
         this.message = data.message;
-        console.log(this.user);
-        console.log(this.message);
       } else {
         this.errors = data.errors;
       }
     },
-    //-------------------- Delete user --------------------/
+    //*-------------------- Delete user --------------------*//
     async deleteUser(user_id) {
       const response = await fetch(`/api/users/${user_id}`, {
         method: "delete",
@@ -97,7 +95,7 @@ export const useUserStore = defineStore('userStore', {
 
       if (response.ok) {
         this.message = data.message;
-        console.log(this.message);
+        
       } else {
         this.errors = data.errors;
       }

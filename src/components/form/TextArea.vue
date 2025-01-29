@@ -19,7 +19,7 @@ const props = defineProps({
   },
   rows: {
     type: Number,
-    default: 5
+    default: 2
   }
 })
 

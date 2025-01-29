@@ -24,8 +24,8 @@ defineEmits(['update:inputValue']);
     <input
       :required="required"
       :id="id" type="date"
-      class="bg-neutral-900/30
-      text-neutral-100 px-4 py-1 rounded-md h-[40px] w-[150px]"
+      class="bg-black/30
+      text-white px-4 py-1 rounded-md h-[40px] w-[150px]"
       :value="inputValue"
       @input="$emit('update:inputValue', $event.target.value)"
       :min="`${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`"

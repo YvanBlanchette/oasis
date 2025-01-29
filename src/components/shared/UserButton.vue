@@ -1,21 +1,25 @@
 <script setup>
 //*-------------------- Imports --------------------*//
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { RouterLink, useRouter } from 'vue-router';
 
 // Store imports
 import { useAuthStore } from '@/stores/auth';
 import { useToasterStore } from '@/stores/toaster';
+import { useReservationStore } from '@/stores/reservation';
 
 
 //*-------------------- Stores --------------------*//
 const authStore = useAuthStore();
 const toaster = useToasterStore();
+const reservationStore = useReservationStore();
 const router = useRouter();
 
 
 //*-------------------- Variables / States --------------------*//
 const isMenuOpen = ref(false);
+const revervations = ref({});
+const photoPlacholder = 'https://static.vecteezy.com/system/resources/previews/036/594/092/large_2x/man-empty-avatar-photo-placeholder-for-social-networks-resumes-forums-and-dating-sites-male-and-female-no-photo-images-for-unfilled-user-profile-free-vector.jpg';
 const user = JSON.parse(localStorage.getItem('user'));
 const isStaff = JSON.parse(localStorage.getItem('isStaff'));
 const isAuthenticated = JSON.parse(localStorage.getItem('isAuthenticated'));
@@ -32,17 +36,23 @@ const logout = async () => {
 
     // Redirect the user to the home page
     router.push({ name: 'home' });
-
-    // Reload the page
-    window.location.reload();
   } catch (error) {
     // Log the error
     console.error('Une erreur s\'est produite lors de la déconnexion: ', error);
 
     // Send an error toast
     toaster.showToast('error', 'Erreur', 'Une erreur s\'est produite lors de la déconnexion!')
+  } finally {
+    window.location.reload();
   }
 }
+
+onMounted(async () => {
+  if (isAuthenticated) {
+    await reservationStore.getUserReservations(user.email);
+    revervations.value = reservationStore.reservations
+  }
+})
 </script>
 
 
@@ -52,7 +62,7 @@ const logout = async () => {
       class="bg-neutral-50/10 rounded-full size-[3rem] flex justify-center items-center border-2 overflow-hidden border-neutral-200 hover:border-primary transition-all duration-200 text-neutral-200 hover:text-primary"
       :class="isMenuOpen && 'border-primary text-primary'">
       <i v-if="!user" class="fa-solid fa-user text-2xl"></i>
-      <img v-else :src="user.photoURL" class="w-12 h-12 object-cover" alt="Avatar de l'utilisateur">
+      <img v-else :src="user.photoURL || photoPlacholder" class="w-12 h-12 object-cover" alt="Avatar de l'utilisateur">
     </button>
 
     <!-- User Menu -->
@@ -71,9 +81,9 @@ const logout = async () => {
       <!-- My Reservations -->
       <template v-if="isAuthenticated && !isStaff">
         <RouterLink :to="{ name: 'myReservations' }"
-          class="p-2 flex justify-center items-center gap-2 hover:text-primary transition-all duration-200 cursor-pointer">
-          <i class="fa-solid fa-cart-shopping"></i>
-          <p>Mes Réservations</p>
+          class="p-2 flex justify-center items-center gap-3 hover:text-primary transition-all duration-200 cursor-pointer">
+          <i class="relative fa-solid fa-cart-shopping"><span v-if="revervations?.length > 0" class="absolute -top-2 -right-3 bg-primary text-white rounded-full w-4 h-4 flex justify-center items-center text-[8px] font-medium">{{ revervations.length }}</span></i>
+          <p class="relative">Mes Réservations </p>
         </RouterLink>
       </template>
 

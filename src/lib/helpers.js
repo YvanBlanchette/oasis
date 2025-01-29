@@ -1,3 +1,4 @@
+// Format a number as currency
 export const formatCurrency = (number) => {
   return new Intl.NumberFormat('fr-CA', {
     style: 'decimal',
@@ -6,6 +7,7 @@ export const formatCurrency = (number) => {
   }).format(number)
 };
 
+// Format a date string
 export function formatDate(dateString) {
   const date = new Date(dateString);
   const options = {
@@ -17,7 +19,7 @@ export function formatDate(dateString) {
   return formatter.format(date);
 }
 
-
+// Capitalize the first letter of a string
 export const capitalize = (string) => {
   return string.charAt(0).toUpperCase() + string.slice(1);
 };

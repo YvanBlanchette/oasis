@@ -1,113 +1,160 @@
 <script setup>
+//*-------------------- Imports --------------------*//
+import { onMounted, reactive, ref } from 'vue';
+
+// Component imports
 import Modal from '@/components/shared/Modal.vue';
-import { useUserStore } from '@/stores/user';
-import { computed, onMounted, ref } from 'vue';
 
-import DatePicker from '@/components/form/DatePicker.vue';
-import TimePicker from '@/components/form/TimePicker.vue';
+// Stores imports
+import { useToasterStore } from '@/stores/toaster';
 import { useActivityStore } from '@/stores/activity';
+import { useReservationStore } from '@/stores/reservation';
 
-const userStore = useUserStore();
+
+//*-------------------- Stores --------------------*//
 const activityStore = useActivityStore();
+const reservationStore = useReservationStore();
+const toaster = useToasterStore();
 
-const users = ref([]);
-const activities = ref([]);
 
-defineEmits(['close-modal']);
+//*-------------------- Variables / States --------------------*//
+const emit = defineEmits(['close-modal', 'refreshReservations']);
 
 const props = defineProps({
-  selectedItem: Object,
-  updateReservation: Function
+  reservationData: Object,
 });
 
-const isLoading = ref(true);
+const user = JSON.parse(localStorage.getItem("user"));
+const activity = ref({})
 
+const today = new Date();
+const minDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+// Form data
+const formData = reactive({
+  activity_id: props.reservationData.activity_id,
+  user_email: props.reservationData.user.email,
+  reservation_date: props.reservationData.reservation_date,
+  reservation_time: props.reservationData.reservation_time,
+  nb_adults: props.reservationData.nb_adults,
+  nb_children: props.reservationData.nb_children,
+  total_price: props.reservationData.total_price,
+});
+
+
+//*-------------------- Functions --------------------*//
 onMounted(async () => {
-  users.value = await userStore.getUsers();
-  activities.value = await activityStore.getActivities();
-  isLoading.value = false
+  await activityStore.getActivity(props.reservationData.activity_id);
+  activity.value = activityStore.activity;
 })
 
-
-
+// Function to update a reservation
+const editReservation = async () => {
+  try {
+    formData.total_price = activity.value.pricePerAdult * formData.nb_adults + activity.value.pricePerChildren * formData.nb_children;
+    await reservationStore.editReservation(formData, props.reservationData.id);
+    toaster.showToast('success', 'Réservation', 'La réservation a été modifiée avec succès.');
+  } catch (error) {
+    toaster.showToast("error", "Réservation", "Une erreur s'est produite lors de la modification.");
+    console.error(error);
+  } finally {
+    emit('close-modal');
+    emit('refreshReservations');
+  }
+};
 </script>
 
 <template>
   <Modal>
-    <div class="min-h-[400px] w-full flex flex-col justify-between">
-    <!-- Close button -->
-    <button @click="$emit('close-modal')"
-      class="absolute top-4 right-4 w-7 h-7 flex items-center justify-center transition-all duration-200 rounded-md hover:bg-neutral-400/80">
-      <i class="fa-solid fa-xmark text-xl text-neutral-100"></i>
-    </button>
-    <div class="w-full h-full flex flex-col items-center justify-center">
+    <div class="min-h-[400px] w-full flex flex-col justify-evenly text-black">
+      <!-- Close button -->
+      <button @click="$emit('close-modal')"
+        class="absolute top-4 right-4 w-7 h-7 flex items-center justify-center transition-all duration-200 rounded-md hover:bg-neutral-400/80">
+        <i class="fa-solid fa-xmark text-xl text-black"></i>
+      </button>
       <!-- Modal Title -->
-      <h1 class="text-5xl text-neutral-100 text-center mb-6">Modifier une réservation</h1>
+      <h1 class="text-4xl lg:text-5xl text-center font-semibold">Modifier une réservation</h1>
+      <form novalidate @submit.prevent="editReservation">
+        <div class="flex items-center justify-between gap-12 px-8 w-full">
 
-      <div v-if="isLoading" class="table-loader">
-        <Loader color="text-primary" />
-      </div>
-      <!-- Form -->
-      <form v-else @submit.prevent="updateReservation(selectedItem.id)" class="flex flex-col w-full">
-        <div class="flex flex-col gap-8 w-full justify-center">
-          <div class="w-full">
-
-            <div class="w-full flex justify-between items-center gap-10 mb-4">
-            <!-- Date Input -->
-            <div class="flex flex-col">
-              <label for="reservation_date" class="text-neutral-100 text-lg mb-1">Date</label>
-              <DatePicker required="true" id="reservation_date" :inputValue="selectedItem.reservation_date" />
-            </div>
-
-            <!-- Time Input -->
-            <div class="flex flex-col">
-              <label for="reservation_time" class="text-neutral-100 text-lg mb-1">Heure</label>
-              <TimePicker required="true" id="reservation_time" :inputValue="selectedItem.reservation_time" />
-            </div>
-
-            <!-- Participants Input -->
-            <div class="flex flex-col">
-              <label for="nb_participants" class="text-neutral-100  text-lg mb-1">Participants</label>
-              <NumberInput required="true" id="nb_participants" :modelValue="selectedItem.nb_participants" />
-            </div>
-            </div>
-
-            <!-- User selector -->
-            <div class="flex flex-col mb-4">
-              <label for="user" class="text-neutral-100 text-lg mb-1">Client(e)</label>
-              <select name="user" id="user" class="bg-neutral-900/30 text-neutral-100 px-4 py-1 rounded-md h-[40px]">
-                <option v-for="user in userStore.users" :key="user.id" value="user"
-                  :selected="user.id === selectedItem.user.id">{{ user.name }}</option>
-              </select>
-            </div>
-
-            <!-- Activity selector -->
-            <div class="flex flex-col">
-              <label for="activity" class="text-neutral-100 text-lg mb-1">Activité</label>
-              <select name="category" id="category" class="bg-neutral-900/30 text-neutral-100 px-4 py-1 rounded-md h-[40px]">
-                <option v-for="activity in activityStore.activities" :key="activity.name" :selected="activity === selectedItem.activity">
-                  {{ activity.name }}
-                </option>
-              </select>
-            </div>
-
+          <div class="flex flex-col">
+          <label for="datePicker" class="font-bold block mb-2">Nombre d'adultes<span class="text-red-500">
+            *</span></label>
+          <div class="flex items-center w-[150px]">
+            <!-- Adults input -->
+            <button type="button" @click="
+            formData.nb_adults > 0 && formData.nb_adults--;
+            "
+              class="px-4 py-1 h-[40px] rounded-l-md text-neutral-300 bg-black/50 hover:text-white text-lg">
+              <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <input type="number" id="nb_adults" name="nb_adults" v-model="formData.nb_adults"
+              class="bg-black/30 text-center focus:outline-none focus:ring-0 focus:ring-offset-0 w-full pb-1 px-2 pl-5 pt-1 h-[40px] pointer-events-none text-xl font-medium" />
+            <button type="button" @click="formData.nb_adults++;
+            "
+              class="px-4 py-1 h-[40px] rounded-r-md text-neutral-300 bg-black/50 hover:text-white text-lg">
+              <i class="fa-solid fa-chevron-right"></i>
+            </button>
+          </div>
           </div>
 
-          <div>
-
+          <!-- Children input -->
+          <div class="flex flex-col">
+          <label for="datePicker" class="font-bold block mb-2">Nombre d'enfants<span class="text-red-500">
+            *</span></label>
+          <div class="flex items-center w-[150px]">
+            <button type="button" @click="
+            formData.nb_adults > 0 && formData.nb_children--;
+            "
+              class="px-4 py-1 h-[40px] rounded-l-md text-neutral-300 bg-black/50 hover:text-white text-lg">
+              <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <input type="number" id="nb_adults" name="nb_adults" v-model="formData.nb_children"
+              class="bg-black/30 text-center focus:outline-none focus:ring-0 focus:ring-offset-0 w-full pb-1 px-2 pl-5 pt-1 h-[40px] pointer-events-none text-xl font-medium" />
+            <button type="button" @click="formData.nb_children++;
+            "
+              class="px-4 py-1 h-[40px] rounded-r-md text-neutral-300 bg-black/50 hover:text-white text-lg">
+              <i class="fa-solid fa-chevron-right"></i>
+            </button>
+          </div>
           </div>
         </div>
-        <!-- Buttons -->
-        <div class="flex justify-end items-center gap-4 text-neutral-100">
-          <button type="button" @click="$emit('close-modal')"
-            class="hover:text-primary px-4 py-1 rounded-md transition-all duration-200">
+
+        <div class="flex items-center justify-between gap-12 mt-5 px-8 w-full">
+          <!-- Date input -->
+          <div>
+            <label for="datePicker" class="font-bold block mb-2">Date de l'activité<span class="text-red-500">
+                *</span></label>
+            <input required id="reservation_date" type="date"
+              class="bg-black/30 text-black cursor-pointer px-4 py-1 rounded-md h-[40px] w-[150px] focus:outline-none focus:ring-0 focus:ring-offset-0"
+              v-model="formData.reservation_date" :min="minDate" />
+          </div>
+
+          <!-- Time input -->
+          <div>
+            <label for="reservation_time" class="font-bold block mb-2">Heure de l'activité<span class="text-red-500">
+                *</span></label>
+            <input required type="time" id="reservation_time" v-model="formData.reservation_time" min="09:00"
+              max="18:00" step="900"
+              class="bg-black/30 text-black cursor-pointer px-4 py-1 rounded-md h-[40px] w-[150px] focus:outline-none focus:ring-0 focus:ring-offset-0" />
+          </div>
+        </div>
+
+        <div class="flex items-start justify-between gap-6 mt-5 px-8 w-full text-xs">
+
+
+          <div class="flex justify-center lg:justify-end items-center w-full gap-4 mt-4">
+            <button type="button" @click="$emit('close-modal')"
+            class="hover:bg-neutral-200/80 px-4 py-2 text-base rounded-md hover:shadow font-medium transition-all duration-200">
             Annuler
           </button>
-          <input type="submit" value="Mettre à jour"
-            class="cursor-pointer bg-red-500 hover:bg-red-700 px-4 py-1 rounded-md shadow text-neutral-100 transition-all duration-200">
+            <button type="submit"
+              class="text-center text-base uppercase rounded-md shadow active:shadow-inner font-semibold bg-primary tracking-wide text-black py-2 px-4 hover:bg-primary-dark transition-all duration-300">
+              Réserver
+            </button>
+          </div>
         </div>
       </form>
     </div>
-  </div>
   </Modal>
 </template>

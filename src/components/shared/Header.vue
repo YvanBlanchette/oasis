@@ -14,8 +14,12 @@ import { useAuthStore } from '@/stores/auth';
 //*-------------------- Stores --------------------*//
 const authStore = useAuthStore();
 
+
 //*-------------------- Variables --------------------*//<
 const menuOpen = ref(false);
+const isAuthenticated = JSON.parse(localStorage.getItem('isAuthenticated'));
+const isStaff = JSON.parse(localStorage.getItem('isStaff'));
+
 const links = [
   {
     name: 'Accueil',
@@ -24,11 +28,7 @@ const links = [
   {
     name: 'Activités',
     path: '/#activities'
-  },
-  {
-    name: 'Nous Joindre',
-    path: '/#contact'
-  },
+  }
 ]
 </script>
 
@@ -56,7 +56,7 @@ const links = [
 
         <!-- User Button -->
         <div class="hidden lg:block">
-          <UserButton @logout="logout" />
+          <UserButton />
         </div>
       </div>
     </div>
@@ -71,28 +71,22 @@ const links = [
       <img src="/images/oasis_logo.png" alt="Logo de l'Oasis" class="h-28 mx-auto mt-12 mb-4">
     </RouterLink>
 
-    <nav class="text-neutral-100  text-lg uppercase flex flex-col justify-center items-center gap-4 font-medium">
+    <nav class="text-white  text-lg uppercase flex flex-col justify-center items-center gap-4 font-medium">
       <!-- Activities -->
       <a href="/#activities"
         class="p-2 flex justify-center items-center gap-2 hover:text-primary transition-all duration-200 cursor-pointer">
         <i class="fa-solid fa-sailboat"></i>
         <p>Activités</p>
       </a>
-      <!-- Contact -->
-      <a href="/#contact"
-        class="p-2 flex justify-center items-center gap-2 hover:text-primary transition-all duration-200 cursor-pointer">
-        <i class="fa-solid fa-phone"></i>
-        <p>Nous Joindre</p>
-      </a>
       <!-- User Profile -->
-      <RouterLink v-if="authStore.isAuthenticated" :to="{ name: 'profile' }"
+      <RouterLink v-if="isAuthenticated" :to="{ name: 'profile' }"
         class="p-2 flex justify-center items-center gap-2 hover:text-primary transition-all duration-200 cursor-pointer">
         <i class="fa-solid fa-user"></i>
         <p>Mon profil</p>
       </RouterLink>
 
       <!-- My Reservations -->
-      <template v-if="authStore.isAuthenticated">
+      <template v-if="isAuthenticated && !isStaff">
         <RouterLink :to="{ name: 'myReservations' }"
           class="p-2 flex justify-center items-center gap-2 hover:text-primary transition-all duration-200 cursor-pointer">
           <i class="fa-solid fa-cart-shopping"></i>
@@ -100,8 +94,17 @@ const links = [
         </RouterLink>
       </template>
 
+      <!-- Dashboard -->
+      <template v-if="isStaff">
+        <RouterLink :to="{ name: 'dashboard' }"
+          class="p-2 flex justify-center items-center gap-2 hover:text-primary transition-all duration-200 cursor-pointer">
+          <i class="fa-solid fa-table-columns"></i>
+          <p>Tableau de bord</p>
+        </RouterLink>
+      </template>
+
       <!-- Login -->
-      <template v-if="!authStore.isAuthenticated">
+      <template v-if="!isAuthenticated">
         <RouterLink :to="{ name: 'auth' }"
           class="p-2 flex justify-center items-center gap-2 hover:text-primary transition-all duration-200 cursor-pointer">
           <i class="fa-solid fa-right-to-bracket"></i>
@@ -110,7 +113,7 @@ const links = [
       </template>
 
       <!-- Logout -->
-      <div v-show="authStore.isAuthenticated" @click="logout()"
+      <div v-show="isAuthenticated" @click="logout()"
         class="p-2 flex justify-center items-center gap-2 hover:text-primary transition-all duration-200 cursor-pointer">
         <i class="fa-solid fa-right-from-bracket"></i>
         <p>Déconnexion</p>
@@ -120,7 +123,7 @@ const links = [
 
     <button @click="menuOpen = !menuOpen">
       <i
-        class="fa-solid fa-xmark text-3xl text-neutral-100 hover:text-primary transition-all duration-200 absolute top-4 left-4"></i>
+        class="fa-solid fa-xmark text-3xl text-white hover:text-primary transition-all duration-200 absolute top-4 left-4"></i>
     </button>
 
     <!-- Bottom Decoration -->

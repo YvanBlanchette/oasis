@@ -9,7 +9,7 @@ export const useStaffStore = defineStore('staffStore', {
     }
   },
   actions: {
-    //-------------------- Get staff members from the db --------------------/
+    //*-------------------- Get staff members from the db --------------------*//
     async getStaff() {
       const response = await fetch("/api/staff", {
         headers: {
@@ -22,7 +22,7 @@ export const useStaffStore = defineStore('staffStore', {
         return this.staff;
       }
     },
-    //-------------------- Login / Register user --------------------/
+    //*-------------------- Login / Register user --------------------*//
     async authenticate(apiRoute, formData) {
       const response = await fetch(`/api/${apiRoute}`, {
         method: 'POST',
@@ -41,7 +41,7 @@ export const useStaffStore = defineStore('staffStore', {
         this.router.push({ name: "home" });
       }
     },
-    //-------------------- Create staff --------------------/
+    //*-------------------- Create staff --------------------*//
     async createStaff(staffData) {
       const response = await fetch('/api/staff/', {
         method: "post",
@@ -57,12 +57,12 @@ export const useStaffStore = defineStore('staffStore', {
       if (response.ok) {
         this.staff = data.staff;
         this.message = data.message;
-        console.log(this.message);
+        
       } else {
         this.errors = data.errors;
       }
     },
-    //-------------------- Update staff --------------------/
+    //*-------------------- Update staff --------------------*//
     async updateStaff(staff_id, staffData) {
       const response = await fetch(`/api/staff/${staff_id}`, {
         method: "put",
@@ -78,32 +78,32 @@ export const useStaffStore = defineStore('staffStore', {
       if (response.ok) {
         this.staff = data.staff;
         this.message = data.message;
-        console.log(this.staff);
-        console.log(this.message);
+        
       } else {
         this.errors = data.errors;
       }
     },
-    //-------------------- Toggle staff status --------------------/
+    //*-------------------- Toggle staff status --------------------*//
     async toggleStatus(staff_id) {
-      try {
-        const response = await fetch(`/api/staff/${staff_id}/toggle-status`, {
-          method: "PATCH",
-        })
+      const response = await fetch(`/api/staff/${staff_id}`, {
+        method: "get",
+        headers: {
+          authorization: `Bearer ${localStorage.getItem("token")}`,
+          'Content-Type': 'application/json'
+        },
+      });
 
-        if (!response.ok) {
-          throw new Error(`Erreur ${response.status}: ${response.statusText}`);
-        }
+      const data = await response.json();
 
-        const data = await response.json();
+      if (response.ok) {
+        this.staff = data.staff;
         this.message = data.message;
-        this.staff = data;
-        console.log(data);
-      } catch (error) {
-        console.log(error);
+        
+      } else {
+        this.errors = data.errors;
       }
     },
-    //-------------------- Delete staff --------------------/
+    //*-------------------- Delete staff --------------------*//
     async deleteStaff(staff_id) {
       const response = await fetch(`/api/staff/${staff_id}`, {
         method: "delete",
@@ -116,7 +116,7 @@ export const useStaffStore = defineStore('staffStore', {
 
       if (response.ok) {
         this.message = data.message;
-        console.log(this.message);
+        
       } else {
         this.errors = data.errors;
       }

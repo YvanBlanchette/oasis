@@ -8,15 +8,24 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 </style>
 
 <script setup>
+//*-------------------- Imports --------------------*//
+import { reactive } from 'vue';
+
+// Component imports
 import Modal from '@/components/shared/Modal.vue';
-import { useStaffStore } from '@/stores/staff';
-import { useToasterStore } from '@/stores/toaster';
-import { reactive, toRefs } from 'vue';
 import Toast from '@/components/shared/Toast.vue';
 
-const staffStore = useStaffStore();
-const toaster = useToasterStore();
+// Store imports
+import { useStaffStore } from '@/stores/staff';
+import { useToasterStore } from '@/stores/toaster';
 
+
+//*-------------------- Stores --------------------*//
+const toaster = useToasterStore();
+const staffStore = useStaffStore();
+
+
+//*-------------------- Variables / States --------------------*//
 const emit = defineEmits(['close-modal', 'refresh-users']);
 
 const formData = reactive({
@@ -34,6 +43,8 @@ const formData = reactive({
 
 const today = new Date();
 
+
+//*-------------------- Functions --------------------*//
 // Function to create a new staff
 const createStaff = async () => {
   if (!validateName(formData.displayName)) return;
@@ -43,7 +54,6 @@ const createStaff = async () => {
 
   if (formData) {
     await staffStore.createStaff({ ...formData });
-    console.log({ ...formData });
     emit('refresh-users');
     emit('close-modal');
   }
@@ -118,22 +128,22 @@ const validateHireDate = (hireDate) => {
     </button>
     <div class="w-full h-full flex flex-col items-center justify-center text-black">
       <!-- Modal Title -->
-      <h1 class="text-5xl text-center font-semibold mb-6">Enregistrer un employé</h1>
+      <h1 class="text-4xl lg:text-5xl text-center font-semibold mb-6">Enregistrer un employé</h1>
       <!-- Form -->
       <form @submit.prevent="createStaff()" class="flex flex-col w-full">
         <div class="flex gap-8 w-full justify-between">
           <div class="flex flex-col gap-2 justify-between w-full h-full">
             <!-- Name Input -->
-            <Input placeholder="Inscrire le nom de l'employé" type="text" label="Nom" v-model="formData.displayName"
-              className="text-neutral-900 w-full shadow-inner" />
+            <Input placeholder="Inscrire le nom" type="text" label="Nom" v-model="formData.displayName"
+              className="text-black w-full shadow-inner" />
 
             <!-- Email Input -->
-            <Input placeholder="Inscrire l'adresse courriel de l'employé" type="email" label="Adresse courriel"
-              v-model="formData.email" className="text-neutral-900 w-full shadow-inner" />
+            <Input placeholder="Inscrire le courriel" type="email" label="Adresse courriel"
+              v-model="formData.email" className="text-black w-full shadow-inner" />
 
             <!-- Phone Input -->
-            <Input placeholder="Inscrire le numéro de téléphone de l'employé" type="tel" label="Téléphone"
-              v-model="formData.phone" className="text-neutral-900 w-full shadow-inner" />
+            <Input placeholder="Inscrire le numéro de téléphone" type="tel" label="Téléphone"
+              v-model="formData.phone" className="text-black w-full shadow-inner" />
 
           </div>
 
@@ -148,7 +158,7 @@ const validateHireDate = (hireDate) => {
               <input type="file" id="photoURL" class="hidden">
               <button v-if="formData.photoURL" @click="formData.photoURL = ''"
                 class="absolute top-2 right-2 w-5 h-5 flex items-center justify-center transition-all duration-200 rounded-md bg-red-500 hover:bg-red-600">
-                <i class="fa-solid fa-xmark text-neutral-100"></i>
+                <i class="fa-solid fa-xmark text-white"></i>
               </button>
             </div>
           </div>
@@ -157,8 +167,8 @@ const validateHireDate = (hireDate) => {
         <div class="mt-6 w-full flex flex-col gap-1">
           <div class="flex justify-between gap-8">
           <!-- Address Input -->
-          <Input autocomplete="username" placeholder="Inscrire l'adresse de l'employé" type="text" label="Adresse" v-model="formData.address"
-            className="text-neutral-900 w-full" />
+          <Input autocomplete="username" placeholder="Inscrire l'adresse" type="text" label="Adresse" v-model="formData.address"
+            className="text-black w-full" />
           <!-- Hire Date -->
           <div class="flex flex-col gap-1">
             <label for="hireDate" class="text-black">Date d'embauche</label>
@@ -166,9 +176,9 @@ const validateHireDate = (hireDate) => {
           </div>
           </div>
           <PasswordInput label="Mot de passe" id="password" v-model="formData.password"
-            placeholder="Inscrire le mot de passe de l'employé" class="mt-1 w-full" autocomplete="new-password" />
+            placeholder="Inscrire le mot de passe" class="mt-1 w-full" autocomplete="new-password" />
           <PasswordInput label="Confirmation de mot de passe" id="password_confirmation" v-model="formData.passwordConfirmation"
-            placeholder="Confirmer le mot de passe de l'employé" class="mt-1 w-full" autocomplete="new-password" />
+            placeholder="Confirmer le mot de passe" class="mt-1 w-full" autocomplete="new-password" />
         </div>
 
         <div class="mt-6 w-full flex gap-8 justify-between">
@@ -197,16 +207,16 @@ const validateHireDate = (hireDate) => {
 
 
         <!-- Buttons -->
-        <div class="flex justify-end items-center gap-4 mt-6">
+        <div class="flex justify-center lg:justify-end items-center gap-4 mt-6">
           <button type="button" @click="$emit('close-modal')"
             class="hover:bg-neutral-200/80 px-4 py-1 rounded-md hover:shadow font-medium transition-all duration-200">
             Annuler
           </button>
           <input type="submit" value="Mettre à jour"
-            class="cursor-pointer bg-primary hover:bg-primary-dark px-4 py-1 rounded-md shadow text-neutral-100 font-medium transition-all duration-200">
+            class="cursor-pointer bg-primary hover:bg-primary-dark px-4 py-1 rounded-md shadow text-white font-medium transition-all duration-200">
         </div>
       </form>
     </div>
   </Modal>
-  <Toast ref="toast" />
+  <Toast ref="toast" class="z-50" />
 </template>

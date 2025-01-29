@@ -1,27 +1,28 @@
 <script setup>
+//*-------------------- Imports --------------------*//
 import { reactive } from 'vue';
 
-//* Components imports
+// Components imports
 import PrimaryButton from '@/components/shared/PrimaryButton.vue';
 import Input from '@/components/form/Input.vue';
 import PasswordInput from '@/components/form/PasswordInput.vue';
 
-//* Stores imports
+// Stores imports
 import { useAuthStore } from '@/stores/auth';
 import { useToasterStore } from '@/stores/toaster'
 
 
-// Store instances
+//*-------------------- Stores --------------------*//
 const authStore = useAuthStore();
 const toaster = useToasterStore()
 
 
+//*-------------------- Variables / States --------------------*//
 // Form credentials
 const credentials = reactive({
   email: '',
   password: '',
 });
-
 
 // Error messages
 const ERROR_MESSAGES = {
@@ -31,6 +32,7 @@ const ERROR_MESSAGES = {
 };
 
 
+//*-------------------- Functions --------------------*//
 // Function to validate the email field
 const validateEmail = (email) => {
   if (!email) {

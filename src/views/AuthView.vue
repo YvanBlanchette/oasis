@@ -37,4 +37,5 @@ const toggleHasAccount = () => {
   </div>
  </main>
  <Toast ref="toast" />
+ <DevelopmentMode />
 </template>

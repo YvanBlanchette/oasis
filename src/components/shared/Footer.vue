@@ -29,6 +29,12 @@ import { RouterLink } from 'vue-router';
     <p class="text-center text-sm">
       &copy; Copyright {{ new Date().getFullYear() }} Oasis Beach Club | Tous droits reservés.
     </p>
+    <p class="hidden lg:block text-center text-primary-darker text-sm mt-2">
+      Une création de Yvan jr Blanchette
+    </p>
+    <p class="hidden lg:block text-center text-primary-darker text-xs">
+      Dans le cadre du cours d'intégration d'interface utilisateur de l'AEC en développement web du Cégep de Trois-Rivières.
+    </p>
   </div>
  </footer>
 </template>

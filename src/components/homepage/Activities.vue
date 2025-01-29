@@ -45,8 +45,7 @@ onMounted(async () => {
   try {
     isLoading.value = true;
     await activityStore.getActivities();
-    activities.value = activityStore.activities;
-    availableActivities.value = activityStore.activities;
+    activities.value = activityStore.activities.filter(activity => activity.status === 1);
   } catch (error) {
     console.error("Failed to load activities:", error);
   } finally {
@@ -59,9 +58,9 @@ onMounted(async () => {
 <template>
   <section id="activities" class="bg-white text-black w-full h-full min-h-[500px]">
     <div class="w-[90%] max-w-7xl mx-auto h-full py-12 text-center">
-      <h2 class="text-2xl uppercase text-center tracking-wide pb-2">Quoi faire durant votre séjour</h2>
-      <h1 class="text-4xl uppercase text-center font-bold tracking-wide pb-8">Vivez pleinement l'expérience de l'Oasis Beach Club</h1>
-      <p class="text-center text-lg">Ensoleillez votre journée avec des activités passionnantes. Notre équipe d'animation vous offre une programmation estivale qui vous fera découvrir les plaisirs de la plage. Vous avez du temps libre ? Réservez votre place parmi nos activités nautiques, sportives ou de détente offertes tout au long de la journée.
+      <h2 class="text-lg lg:text-2xl uppercase text-center tracking-wide pb-2">Quoi faire durant votre séjour</h2>
+      <h1 class="text-2xl lgtext-4xl uppercase text-center font-bold tracking-wide pb-8">Vivez pleinement l'expérience de l'Oasis Beach Club</h1>
+      <p class="text-center text-base lg:text-lg">Ensoleillez votre journée avec des activités passionnantes. Notre équipe d'animation vous offre une programmation estivale qui vous fera découvrir les plaisirs de la plage. Vous avez du temps libre ? Réservez votre place parmi nos activités nautiques, sportives ou de détente offertes tout au long de la journée.
       </p>
       
       <img src="@/assets/images/bar.svg" class="mx-auto mt-12 mb-2 w-52">
@@ -79,7 +78,7 @@ onMounted(async () => {
           v-for="activity in limitedActivities"
           :key="activity.name"
           :to="{ name: 'activity', params: { id: activity.id } }"
-          class="my-8 bg-neutral-100 text-neutral-900 group shadow"
+          class="my-8 bg-white text-black group shadow"
         >
           <div class="overflow-hidden">
             <img :src="activity.image" :alt="activity.name" class="h-72 object-bottom w-full object-cover group-hover:scale-105 transition-all duration-300">
@@ -89,7 +88,7 @@ onMounted(async () => {
       </div>
 
       <div v-if="activities.length > 8">
-        <button class="px-4 py-1 bg-neutral-100 text-neutral-900 font-semibold mt-8" @click="isOpen = !isOpen">
+        <button class="px-4 py-2 bg-primary hover:bg-primary-dark transition-all duration-200 text-black uppercase font-semibold mt-8" @click="isOpen = !isOpen">
           <span v-if="!isOpen" class="flex items-center gap-2">
             <i class="fa-solid fa-plus"></i>
             Voir plus d'activités

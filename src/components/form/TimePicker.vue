@@ -26,7 +26,7 @@ defineEmits(['update:inputValue'])
   min="09:00"
   max="18:00"
   step="900"
-  class="bg-neutral-900/30 text-neutral-100 px-4 py-1 rounded-md h-[40px] w-[150px]" 
+  class="bg-black/30 text-white px-4 py-1 rounded-md h-[40px] w-[150px]" 
   :class="className"
 />
 </template>

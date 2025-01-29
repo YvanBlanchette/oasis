@@ -66,7 +66,7 @@ export default {
     variant: {
       type: String,
       default: 'primary',
-      validator: (value) => ['secondary', 'outlined', 'ghost'].includes(value),
+      validator: (value) => ['primary', 'secondary', 'outlined', 'ghost'].includes(value),
     },
     disabled: {
       type: Boolean,

@@ -1,21 +1,27 @@
 <script setup>
-import { reactive, ref } from 'vue';
+//*-------------------- Imports --------------------*//
+import { reactive } from 'vue';
+import { useRouter } from 'vue-router';
 
-//* Components imports
+// Components imports
 import Input from '../form/Input.vue';
 import PasswordInput from '../form/PasswordInput.vue';
 
-//* Stores imports
+// Stores imports
 import { useAuthStore } from '@/stores/auth';
 import { useToasterStore } from '@/stores/toaster'
 
-// Store instances
+
+//*-------------------- Stores --------------------*//
 const authStore = useAuthStore();
 const toaster = useToasterStore()
+const router = useRouter();
 
+
+//*-------------------- Variables / States --------------------*//
 // Form credentials
 const credentials = reactive({
-  name: '',
+  displayName: '',
   email: '',
   password: '',
   password_confirmation: '',
@@ -31,6 +37,8 @@ const ERROR_MESSAGES = {
   PASSWORDS_DO_NOT_MATCH: 'Les mots de passe doivent être identiques!',
 };
 
+
+//*-------------------- Functions --------------------*//
 // Function to validate the name field
 const validateName = (name) => {
   if (!name) {
@@ -75,11 +83,12 @@ const register = async () => {
   if (!validateName(credentials.displayName)) return;
   if (!validateEmail(credentials.email)) return;
   if (!validatePasswords(credentials.password, credentials.password_confirmation)) return;
-
-  await authStore.registerEmailPassword(credentials);
-  if (authStore.isAuthenticated) {
+  try {
+    await authStore.register(credentials);
     toaster.showToast('success', 'Compte créé', 'Votre compte a été créé avec succès!');
-  } else {
+    router.push({ name: 'home' });
+  } catch (error) {
+    console.log(error);
     toaster.showToast('error', 'Erreur', 'Une erreur s\'est produite lors de la création!');
   }
 };

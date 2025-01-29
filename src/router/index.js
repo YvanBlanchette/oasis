@@ -78,7 +78,6 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to, from) => {
-  const authStore = useAuthStore();
   const isStaff = JSON.parse(localStorage.getItem('isStaff'));
   const isAdmin = JSON.parse(localStorage.getItem('isAdmin'));
   const isAuthenticated = JSON.parse(localStorage.getItem('isAuthenticated'));

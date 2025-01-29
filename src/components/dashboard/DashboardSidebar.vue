@@ -4,7 +4,11 @@ import { computed, ref } from 'vue';
 
 
 //*-------------------- Variables --------------------*//
-const sidebarOpen = ref(true);
+const isLargeScreen = () => {
+  return window.innerWidth > 1023
+};
+
+const sidebarOpen = ref(isLargeScreen());
 const isStaff = JSON.parse(localStorage.getItem('isStaff'));
 const isAdmin = JSON.parse(localStorage.getItem('isAdmin'));
 const isAuthenticated = JSON.parse(localStorage.getItem('isAuthenticated'));
@@ -26,6 +30,10 @@ const links = [
     href: '/dashboard/customers',
   }
 ];
+
+window.addEventListener('resize', () => {
+  sidebarOpen.value = isLargeScreen()
+})
 </script>
 
 <template>
@@ -39,7 +47,7 @@ const links = [
         <img v-else src="/images/oasis_icon.png" alt="Oasis logo" class="size-12 mx-auto object-contain">
       </RouterLink>
 
-      <nav class=" w-full text-neutral-100 text-lg uppercase flex flex-col justify-between items-start gap-10 font-medium px-4 mt-12" :class="!sidebarOpen && 'mt-[110px]'" >
+      <nav class=" w-full text-white text-lg uppercase flex flex-col justify-between items-start gap-10 font-medium px-4 mt-12" :class="!sidebarOpen && 'mt-[110px]'" >
         
         <RouterLink v-tooltip.right="!sidebarOpen && link.name" v-for="link in links" :key="link.name" :to="link.href"
           class="hover:text-primary transition-all duration-200 flex items-center justify-center gap-4"
@@ -62,7 +70,7 @@ const links = [
 
     <!-- Open/Close button -->
     <div v-tooltip.right="sidebarOpen ? 'Fermer le menu' : 'Ouvrir le menu'"
-      class="absolute border-l-2 border-[#400034] bottom-0 -right-8 w-8 h-16 hover:text-primary bg-gradient-to-br from-[#57555B] to-[#400034] shadow-lg rounded-r-xl flex items-center justify-center transition-all duration-200">
+      class="hidden lg:flex absolute border-l-2 border-[#400034] bottom-0 -right-8 w-8 h-16 hover:text-primary bg-gradient-to-br from-[#57555B] to-[#400034] shadow-lg rounded-r-xl items-center justify-center transition-all duration-200">
       <button @click="sidebarOpen = !sidebarOpen" class="user-select-none">
         <i class="fa-solid fa-angles-right text-xl transition-all duration-500"
           :class="sidebarOpen && 'rotate-[540deg]'"></i>

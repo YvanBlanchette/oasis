@@ -10,16 +10,10 @@ export const useActivityStore = defineStore('activityStore', {
     }
   },
   actions: {
-    //-------------------- Get Activities --------------------//
+    //*-------------------- Get Activities --------------------*//
     async getActivities() {
       try {
-        this.activities = null;
-
         const response = await fetch("/api/activities");
-
-        if (!response.ok) {
-          throw new Error(`Erreur ${response.status}: ${response.statusText}`);
-        }
 
         const data = await response.json();
         this.activities = data.activities;
@@ -29,41 +23,29 @@ export const useActivityStore = defineStore('activityStore', {
         this.errors = error;
       }
     },
-    //-------------------- Get Activity by id --------------------//
+    //*-------------------- Get Activity<--------------------*//
     async getActivity(activity_id) {
       try {
-        this.activity = null;
-        this.message = null;
-
         const response = await fetch(`/api/activities/${activity_id}`, {
           headers: {
             authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         });
 
-        if (!response.ok) {
-          throw new Error(`Erreur ${response.status}: ${response.statusText}`);
-        }
-
         const data = await response.json();
+        this.activity = data.activity;
         this.message = data.message;
-        this.activity = data;
-        console.log(data);
       } catch (error) {
         console.error(error);
-        // Gérer l'erreur ici
+        this.errors = error;
       }
     },
-    //-------------------- Toggle Activity status --------------------//
+    //*-------------------- Toggle Activity status --------------------*//
     async toggleStatus(activity_id) {
       try {
         const response = await fetch(`/api/activities/${activity_id}/toggle-status`, {
           method: "PATCH",
         })
-
-        if (!response.ok) {
-          throw new Error(`Erreur ${response.status}: ${response.statusText}`);
-        }
 
         const data = await response.json();
         this.message = data.message;
@@ -71,9 +53,10 @@ export const useActivityStore = defineStore('activityStore', {
         console.log(data);
       } catch (error) {
         console.log(error);
+        this.errors = error;
       }
     },
-    //-------------------- Create new Activity --------------------//
+    //*-------------------- Create new Activity --------------------*//
     async createActivity(ActivityData) {
       const response = await fetch(`/api/activities/`, {
         method: "POST",
@@ -89,12 +72,13 @@ export const useActivityStore = defineStore('activityStore', {
       if (response.ok) {
         this.activity = data.activity;
         this.message = data.message;
-        console.log(this.message);
+        
       } else {
+        console.log(error);
         this.errors = data.errors;
       }
     },
-    //-------------------- Update Activity --------------------//
+    //*-------------------- Update Activity --------------------*//
     async updateActivity(activity_id, ActivityData) {
       const response = await fetch(`/api/activities/${activity_id}`, {
         method: "PUT",
@@ -110,13 +94,14 @@ export const useActivityStore = defineStore('activityStore', {
       if (response.ok) {
         this.activity = data.activity;
         this.message = data.message;
-        console.log(this.message);
+        
       } else {
+        console.log(error);
         this.errors = data.errors;
       }
       return data;
     },
-    //-------------------- Delete activity --------------------//
+    //*-------------------- Delete activity --------------------*//
     async deleteActivity(activity_id) {
       const response = await fetch(`/api/activities/${activity_id}`, {
         method: "delete",
@@ -129,8 +114,8 @@ export const useActivityStore = defineStore('activityStore', {
 
       if (response.ok) {
         this.message = data.message;
-        console.log(this.message);
       } else {
+        console.log(error);
         this.errors = data.errors;
       }
     },

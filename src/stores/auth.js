@@ -33,7 +33,6 @@ export const useAuthStore = defineStore('authStore', {
     },
     //*-------------------- Login router --------------------*//
     async loginRouter(credentials) {
-      console.log(credentials.email, credentials.password);
       this.credentials = {
         email: credentials.email,
         password: credentials.password
@@ -79,6 +78,22 @@ export const useAuthStore = defineStore('authStore', {
       }
       
     },
+    async register(credentials) {
+      try {
+        await this.registerEmailPassword(credentials);
+        await fetch('/api/users/', {
+          method: "post",
+          headers: {
+            authorization: `Bearer ${localStorage.getItem("token")}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(credentials),
+        });
+      } catch (error) {
+        console.log("Échec de la création de l'utilisateur: ", error);
+        this.errors = error;
+      }
+    },
     //*-------------------- FIREBASE // Register user with email and password --------------------*//
     async registerEmailPassword(credentials) {
       try {
@@ -96,8 +111,6 @@ export const useAuthStore = defineStore('authStore', {
         // Store the authentication with local storage
         this.storeAuthentication(result);
 
-        // Redirect to the home page
-        this.router.push({ name: "home" });
       } catch (error) {
         // Log the error
         console.log("Échec de la création de l'utilisateur: ", error);
@@ -119,8 +132,6 @@ export const useAuthStore = defineStore('authStore', {
         // Authenticate with Firebase
         const result = await signInWithEmailAndPassword(auth, this.credentials.email, this.credentials.password);
         
-        console.log(result);
-
         // Store the authentication with local storage
         this.storeAuthentication(result);
 
