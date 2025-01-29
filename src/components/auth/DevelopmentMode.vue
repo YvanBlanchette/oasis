@@ -23,7 +23,7 @@
 
     <div class="mb-2">
       <p class="text-base font-medium tracking-wide underline">Client</p>
-      <p class="text-xs  tracking-tight">Il n'à pas accès au tableau de bord</p>
+      <p class="text-xs  tracking-tight">Il n'a pas accès au tableau de bord</p>
       <p class="text-sm tracking-wide">Adresse courriel: <span class=font-medium>client@oasis.com</span></p>
       <p class="text-sm tracking-wide">Mot de passe: <span class=font-medium>password</span></p>
     </div>
